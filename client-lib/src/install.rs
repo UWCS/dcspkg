@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use dcspkg::Package;
 use flate2::read::GzDecoder;
+use flate2::CrcReader;
 use reqwest::blocking::Client;
 use reqwest::Url;
 use serde::{Deserialize, Serialize};
@@ -59,7 +60,7 @@ fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
 
 fn download_file(
     pkg_name: &str,
-    checksum: &str,
+    checksum: u32,
     server_url: &Url,
     install_path: &Path,
 ) -> Result<()> {
@@ -80,7 +81,13 @@ fn download_file(
         .text()
         .context("Could not get content of response")?;
 
-    //wrap the bytes in a reader, then another reader
+    //check the crc value is correct
+    let downloaded_checksum = CrcReader::new(compressed.as_bytes()).crc().sum();
+    if downloaded_checksum != checksum {
+        return Err(anyhow!("Checksum for downloaded file did not match!"));
+    }
+
+    //decompress and unarchive the bytes
     let tar = GzDecoder::new(compressed.as_bytes());
     let mut archive = Archive::new(tar);
 

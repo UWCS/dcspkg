@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 pub struct Package {
     path: String,
     version: u32,
-    checksum: String,
+    crc: u32,
     has_installer: bool,
 }
 
@@ -13,8 +13,8 @@ impl Package {
         self.version
     }
 
-    pub fn checksum(&self) -> &str {
-        &self.checksum
+    pub fn checksum(&self) -> u32 {
+        self.crc
     }
     pub fn has_installer(&self) -> bool {
         self.has_installer
