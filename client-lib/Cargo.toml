@@ -6,5 +6,11 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+tar = "0.4.38"
+reqwest = { version = "0.11.11", features = ["blocking", "json"] }
 anyhow = "1"
 server = { path = "../server" }
+log = "0.4.17"
+serde = { version = "1.0", features = ["derive"] }
+tempfile = "3.3.0"
+flate2 = "1.0.24"
