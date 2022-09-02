@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use dcspkg::Package;
+use dcspkg_server::Package;
 use flate2::read::GzDecoder;
 use flate2::CrcReader;
 use reqwest::blocking::Client;
