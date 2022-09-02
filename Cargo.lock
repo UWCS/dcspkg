@@ -299,7 +299,9 @@ dependencies = [
 name = "dcspkg"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "clap",
+ "dcspkg_client",
  "env_logger",
 ]
 

@@ -1,3 +1,3 @@
-pub fn list() -> Vec<String> {
-    vec![]
+pub fn list() -> anyhow::Result<Vec<String>> {
+    Ok(vec![])
 }

@@ -6,3 +6,4 @@ const FILE_ENDPOINT: &str = "/pkg";
 const PKGDIR: &str = "$HOME/.dcspkg";
 
 pub use install::install;
+pub use list::list;

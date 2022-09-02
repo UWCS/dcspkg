@@ -2,8 +2,9 @@ use clap::Parser;
 use env_logger::Env;
 
 mod cli;
+mod config;
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();
 
     let log_level = match cli.verbose {
@@ -17,7 +18,11 @@ fn main() {
     env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
 
     match cli.command {
-        cli::Command::List => println!("Listing packages..."),
-        cli::Command::Install { package } => println!("Installing {package}!"),
+        cli::Command::List => dcspkg_client::list()?
+            .into_iter()
+            .for_each(|p| println!("{p}")),
+        cli::Command::Install { package } => dcspkg_client::install(&package, config::SERVER_URL)?,
     }
+
+    Ok(())
 }
