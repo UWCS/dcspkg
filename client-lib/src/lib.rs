@@ -1,9 +1,7 @@
-mod install;
-mod list;
+mod commands;
 
 const DATA_ENDPOINT: &str = "/pkgdata";
 const FILE_ENDPOINT: &str = "/pkg";
 const PKGDIR: &str = "$HOME/.dcspkg";
 
-pub use install::install;
-pub use list::list;
+pub use commands::*;
