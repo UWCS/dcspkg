@@ -17,12 +17,5 @@ fn main() -> anyhow::Result<()> {
 
     env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
 
-    match cli.command {
-        cli::Command::List => dcspkg_client::list()?
-            .into_iter()
-            .for_each(|p| println!("{p}")),
-        cli::Command::Install { package } => dcspkg_client::install(&package, config::SERVER_URL)?,
-    }
-
-    Ok(())
+    cli.command.run()
 }

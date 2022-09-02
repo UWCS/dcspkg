@@ -19,3 +19,13 @@ pub enum Command {
     /// Install a package
     Install { package: String },
 }
+
+impl Command {
+    pub fn run(&self) -> anyhow::Result<()> {
+        use Command::*;
+        match &self {
+            List => dcspkg_client::list().map(|v| v.into_iter().for_each(|p| println!("{p}"))),
+            Install { package } => dcspkg_client::install(package, crate::config::SERVER_URL),
+        }
+    }
+}
