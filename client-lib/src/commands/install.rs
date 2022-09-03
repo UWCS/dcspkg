@@ -22,11 +22,11 @@ pub fn install(pkg_name: &str, server_url: impl reqwest::IntoUrl) -> Result<()> 
     let install_path = PathBuf::from(crate::PKGDIR).join("bin");
 
     //download, checksum, and decompress into PKGDIR/bin
-    download_file(pkg_name, pkg.checksum(), &server_url, &install_path)
+    download_file(pkg_name, pkg.crc, &server_url, &install_path)
         .context("Could not download file")?;
 
     //run install.sh if exists
-    if pkg.has_installer() {
+    if pkg.has_installer {
         run_install_script(&install_path).context("Could not run install script for file")?;
     }
 

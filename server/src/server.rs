@@ -1,29 +1,23 @@
-extern crate dotenv;
-#[macro_use] extern crate rocket;
-
-use dotenv::dotenv;
-use rocket::State;
-use sea_orm::{Database, DatabaseConnection, EntityTrait};
+use db::PackageDB;
+use dcspkg_server::Package;
 use rocket::serde::json::Json;
-use std::env;
-use entities::{*, prelude::*};
-
-mod entities;
+use rocket::{get, routes};
+use rocket_db_pools::{Connection, Database};
+mod db;
 
 #[get("/list")]
-async fn list(db: &State<DatabaseConnection>) -> Json<Vec<package::Model>> {
-    let db = db as &DatabaseConnection;
-    Json(Package::find().all(db).await.unwrap())
+async fn list(mut db: Connection<PackageDB>) -> Json<Vec<Package>> {
+    Json(vec![db::get_package_by_name(&mut *db, "").await.unwrap()])
 }
 
-#[launch]
-async fn rocket() -> _ {
-    dotenv().ok();
-    let db_url = env::var("DATABASE_URL").unwrap();
-    let db = Database::connect(db_url).await.unwrap();
-
-    rocket::build()
-        .manage(db)
+#[rocket::main]
+async fn main() -> anyhow::Result<()> {
+    let _rocket = rocket::build()
+        .attach(PackageDB::init())
         .mount("/", routes![list])
-        .mount("/games", rocket::fs::FileServer::from("games/"))
+        .mount("/packages", rocket::fs::FileServer::from("/packages"))
+        .launch()
+        .await?;
+
+    Ok(())
 }
