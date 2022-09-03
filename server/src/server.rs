@@ -1,4 +1,4 @@
-use db::PackageDB;
+use db::{get_all_packages, PackageDB};
 use dcspkg_server::Package;
 use rocket::serde::json::Json;
 use rocket::{get, routes};
@@ -7,7 +7,10 @@ mod db;
 
 #[get("/list")]
 async fn list(mut db: Connection<PackageDB>) -> Json<Vec<Package>> {
-    Json(vec![db::get_package_by_name(&mut *db, "").await.unwrap()])
+    match get_all_packages(&mut *db).await {
+        Ok(x) => Json(x),
+        Err(_) => panic!(), //TODO, work out how to handle failure in reponder
+    }
 }
 
 #[rocket::main]
