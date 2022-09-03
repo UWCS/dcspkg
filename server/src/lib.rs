@@ -1,2 +1,2 @@
-mod package;
-pub use package::Package;
+mod entities;
+pub use entities::package::Model;
