@@ -4,7 +4,6 @@ use flate2::read::GzDecoder;
 use flate2::CrcReader;
 use reqwest::blocking::Client;
 use reqwest::Url;
-use serde::{Deserialize, Serialize};
 use std::fs::{self, Permissions};
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
@@ -33,12 +32,10 @@ pub fn install(pkg_name: &str, server_url: impl reqwest::IntoUrl) -> Result<()> 
     Ok(())
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
-struct DataRequest<'a>(&'a str);
-
 fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
     let url = server_url
         .join(crate::DATA_ENDPOINT)
+        .and_then(|url| url.join(pkg_name))
         .context("Could not parse URL")?;
 
     log::info!("Downloading data for package {pkg_name} from {url}...");
@@ -47,7 +44,6 @@ fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
     let package: Option<Package> = {
         let response = Client::new()
             .get(url.clone())
-            .json(&DataRequest(pkg_name))
             .send()
             .context("Request failed")?;
 

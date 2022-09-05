@@ -19,7 +19,7 @@ pub async fn get_package_by_name(
 pub async fn get_all_packages(
     conn: &mut PoolConnection<Sqlite>,
 ) -> Result<Vec<Package>, sqlx::Error> {
-    sqlx::query_as::<_, Package>("SELECT * FROM packages")
+    sqlx::query_as("SELECT * FROM packages")
         .fetch_all(conn)
         .await
 }

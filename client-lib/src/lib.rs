@@ -1,7 +1,7 @@
 mod commands;
 
 const DATA_ENDPOINT: &str = "/pkgdata";
-const FILE_ENDPOINT: &str = "/pkg";
+const FILE_ENDPOINT: &str = "/download";
 const LIST_ENDPOINT: &str = "/list";
 const PKGDIR: &str = "$HOME/.dcspkg";
 
