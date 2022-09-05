@@ -3,7 +3,7 @@ use rocket_db_pools::Database;
 use sqlx::{self, pool::PoolConnection, Sqlite};
 
 #[derive(Database)]
-#[database("sqlite_logs")]
+#[database("packagedb")]
 pub struct PackageDB(rocket_db_pools::sqlx::SqlitePool);
 
 pub async fn get_package_by_name(
