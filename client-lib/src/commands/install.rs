@@ -33,7 +33,9 @@ pub fn install(pkg_name: &str, server_url: impl reqwest::IntoUrl) -> Result<()> 
 
     if pkg.add_to_path {
         let bin_path = PathBuf::from(crate::PKGDIR).join("bin");
-        let exe_path = install_path.join(pkg.executable_path);
+        let exe_path = install_path.join(pkg.executable_path.context(
+            "Package is configured to add executable to path, but does not contain an executable.",
+        )?);
         create_symlink(&bin_path, &exe_path)
             .context("Could not create symbolic link to package executable")?;
     }
