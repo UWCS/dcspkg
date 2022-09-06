@@ -14,7 +14,7 @@ CREATE TABLE packages(
     version STRING NOT NULL,
     image_url STRING,
     archive_path STRING NOT NULL,
-    executable_path STRING NOT NULL,
+    executable_path STRING,
     crc INTEGER NOT NULL,
     has_installer INTEGER NOT NULL,
     add_to_path INTEGER NOT NULL)

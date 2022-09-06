@@ -13,7 +13,7 @@ pub struct Package {
     pub version: String,
     pub image_url: Option<String>,
     pub archive_path: String,
-    pub executable_path: String,
+    pub executable_path: Option<String>,
     pub crc: u32,
     pub has_installer: bool,
     pub add_to_path: bool,
