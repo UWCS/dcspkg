@@ -1,7 +1,8 @@
 use anyhow::{Context, Result};
-use reqwest::{blocking::Client, IntoUrl};
+use dcspkg_server::Package;
+use reqwest::{blocking::get, IntoUrl};
 
-pub fn list(url: impl IntoUrl) -> Result<Vec<String>> {
+pub fn list(url: impl IntoUrl) -> Result<Vec<Package>> {
     //craft URL
     let url: reqwest::Url = url
         .into_url()
@@ -12,14 +13,10 @@ pub fn list(url: impl IntoUrl) -> Result<Vec<String>> {
     log::info!("Downloading package list from {url}...");
 
     //fetch the list
-    let list: Vec<String> = {
-        let response = Client::new()
-            .get(url.clone())
-            .send()
-            .context("Request failed")?;
-
-        response.json().context("Could not parse json response")?
-    };
+    let list: Vec<Package> = get(url.as_ref())
+        .context("Request failed")?
+        .json()
+        .context("Could not parse JSON response")?;
 
     log::info!("Got reponse from {url}");
     log::debug!("Package list: {list:?}");

@@ -24,7 +24,7 @@ impl Command {
     pub fn run(&self, url: &str) -> anyhow::Result<()> {
         use Command::*;
         match &self {
-            List => dcspkg_client::list(url).map(|v| v.into_iter().for_each(|p| println!("{p}"))),
+            List => dcspkg_client::list(url).map(|v| v.into_iter().for_each(|p| println!("{p:?}"))),
             Install { package } => dcspkg_client::install(package, url),
         }
     }
