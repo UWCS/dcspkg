@@ -5,7 +5,7 @@ use flate2::CrcReader;
 use reqwest::blocking::Client;
 use reqwest::Url;
 use std::fs::{self, Permissions};
-use std::os::unix::fs::PermissionsExt;
+use std::os::unix::fs::{symlink, PermissionsExt};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tar::Archive;
@@ -18,15 +18,24 @@ pub fn install(pkg_name: &str, server_url: impl reqwest::IntoUrl) -> Result<()> 
     let pkg =
         get_pkg_data(pkg_name, &server_url).context("Could not get package data from server")?;
 
-    let install_path = PathBuf::from(crate::PKGDIR).join("bin");
+    //create directory to unpack into
+    let install_path = PathBuf::from(crate::PKGDIR).join("packages").join(pkg.name);
+    fs::create_dir_all(&install_path).context("Could not create install directory for package")?;
 
     //download, checksum, and decompress into PKGDIR/bin
-    download_file(pkg_name, pkg.crc, &server_url, &install_path)
-        .context("Could not download file")?;
+    download_install_file(pkg_name, pkg.crc, &server_url, &install_path)
+        .context("Could not install file")?;
 
     //run install.sh if exists
     if pkg.has_installer {
         run_install_script(&install_path).context("Could not run install script for file")?;
+    }
+
+    if pkg.add_to_path {
+        let bin_path = PathBuf::from(crate::PKGDIR).join("bin");
+        let exe_path = install_path.join(pkg.executable_path);
+        create_symlink(&bin_path, &exe_path)
+            .context("Could not create symbolic link to package executable")?;
     }
 
     Ok(())
@@ -57,7 +66,7 @@ fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
     package.ok_or_else(|| anyhow!("Package {pkg_name} does not exist on server"))
 }
 
-fn download_file(
+fn download_install_file(
     pkg_name: &str,
     checksum: u32,
     server_url: &Url,
@@ -126,5 +135,10 @@ fn run_install_script(path: &Path) -> Result<()> {
 
     log::info!("Install script finished, cleaning up...");
     fs::remove_file(&script).context("Could not remove script")?;
+    Ok(())
+}
+
+fn create_symlink(bin_path: &Path, exe_path: &Path) -> Result<()> {
+    symlink(bin_path, exe_path)?;
     Ok(())
 }
