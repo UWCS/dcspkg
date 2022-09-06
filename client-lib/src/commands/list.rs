@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use dcspkg_server::Package;
 use reqwest::{blocking::get, IntoUrl};
 
-pub fn list(url: impl IntoUrl) -> Result<Vec<Package>> {
+pub fn list<U: IntoUrl>(url: U) -> Result<Vec<Package>> {
     //craft URL
     let url: reqwest::Url = url
         .into_url()

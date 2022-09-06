@@ -25,7 +25,7 @@ impl Command {
         use Command::*;
         match &self {
             List => dcspkg_client::list(url).map(|v| v.into_iter().for_each(|p| println!("{p:?}"))),
-            Install { package } => dcspkg_client::install(package, url),
+            Install { package } => dcspkg_client::install(crate::config::INSTALL_DIR, package, url),
         }
     }
 }

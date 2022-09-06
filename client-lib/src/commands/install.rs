@@ -10,7 +10,11 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use tar::Archive;
 
-pub fn install(pkg_name: &str, server_url: impl reqwest::IntoUrl) -> Result<()> {
+pub fn install<P: AsRef<Path>>(
+    dcspkg_dir: P,
+    pkg_name: &str,
+    server_url: impl reqwest::IntoUrl,
+) -> Result<()> {
     let server_url = server_url
         .into_url()
         .context("Could not parse server URL")?;
@@ -19,7 +23,7 @@ pub fn install(pkg_name: &str, server_url: impl reqwest::IntoUrl) -> Result<()> 
         get_pkg_data(pkg_name, &server_url).context("Could not get package data from server")?;
 
     //create directory to unpack into
-    let install_path = PathBuf::from(crate::PKGDIR).join("packages").join(pkg.name);
+    let install_path = dcspkg_dir.as_ref().join("packages").join(pkg.name);
     fs::create_dir_all(&install_path).context("Could not create install directory for package")?;
 
     //download, checksum, and decompress into PKGDIR/bin
