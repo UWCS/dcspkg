@@ -2,7 +2,7 @@ use anyhow::{anyhow, Context, Result};
 use dcspkg_server::Package;
 use flate2::read::GzDecoder;
 use flate2::CrcReader;
-use reqwest::blocking::Client;
+use reqwest::blocking::get;
 use reqwest::Url;
 use std::fs::{self, Permissions};
 use std::os::unix::fs::{symlink, PermissionsExt};
@@ -45,21 +45,16 @@ pub fn install(pkg_name: &str, server_url: impl reqwest::IntoUrl) -> Result<()> 
 
 fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
     let url = server_url
-        .join(crate::DATA_ENDPOINT)
-        .and_then(|url| url.join(pkg_name))
+        .join(format!("{}/{}", crate::DATA_ENDPOINT, pkg_name).as_ref())
         .context("Could not parse URL")?;
 
     log::info!("Downloading data for package {pkg_name} from {url}...");
 
     //download the package date as an option
-    let package: Option<Package> = {
-        let response = Client::new()
-            .get(url.clone())
-            .send()
-            .context("Request failed")?;
-
-        response.json().context("Could not parse json response")?
-    };
+    let package: Option<Package> = get(url.as_ref())
+        .context("Request failed")?
+        .json()
+        .context("Could not parse JSON response")?;
 
     log::info!("Got reponse from {url}");
     log::debug!("Package data: {package:?}");
