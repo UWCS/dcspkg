@@ -15,6 +15,7 @@ CREATE TABLE packages(
     image_url STRING,
     archive_name STRING NOT NULL,
     crc INTEGER NOT NULL,
-    has_installer INTEGER NOT NULL);
+    has_installer INTEGER NOT NULL,
+    add_to_path INTEGER NOT NULL)
 """
 )

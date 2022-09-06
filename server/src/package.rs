@@ -15,4 +15,5 @@ pub struct Package {
     pub archive_name: String,
     pub crc: u32,
     pub has_installer: bool,
+    pub add_to_path: bool,
 }
