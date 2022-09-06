@@ -70,8 +70,7 @@ fn download_install_file(
     install_path: &Path,
 ) -> Result<()> {
     let url = server_url
-        .join(crate::FILE_ENDPOINT)
-        .and_then(|url| url.join(&format!("{url}.pkg")))
+        .join(format!("{}/{}.dcspkg", crate::FILE_ENDPOINT, pkg_name).as_ref())
         .context("Could not parse URL")?;
 
     log::info!("Downloading compressed package {pkg_name}.pkg from {url}...");
@@ -79,7 +78,6 @@ fn download_install_file(
     let response = reqwest::blocking::get(url.clone()).context("Request failed")?;
 
     log::info!("Got reponse from {url}");
-    log::info!("Decompressing and unpacking package...");
 
     //the content of the response
     let compressed = response
@@ -88,9 +86,13 @@ fn download_install_file(
 
     //check the crc value is correct
     let downloaded_checksum = CrcReader::new(compressed.as_bytes()).crc().sum();
+    log::info!("Checksum of downloaded package is {downloaded_checksum} (expected {checksum})");
+
     if downloaded_checksum != checksum {
         return Err(anyhow!("Checksum for downloaded file did not match!"));
     }
+
+    log::info!("Decompressing and unpacking package...");
 
     //decompress and unarchive the bytes
     let tar = GzDecoder::new(compressed.as_bytes());
