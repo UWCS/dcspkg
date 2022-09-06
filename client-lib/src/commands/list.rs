@@ -5,8 +5,8 @@ pub fn list(url: impl IntoUrl) -> Result<Vec<String>> {
     //craft URL
     let url: reqwest::Url = url
         .into_url()
-        .context("Could not parse URL")?
-        .join(crate::LIST_ENDPOINT)
+        .map_err(anyhow::Error::from)
+        .and_then(|url| url.join(crate::LIST_ENDPOINT).map_err(|e| e.into()))
         .context("Could not parse URL")?;
 
     log::info!("Downloading package list from {url}...");
