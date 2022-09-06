@@ -9,7 +9,7 @@ cur.execute(
     """
 CREATE TABLE packages(
     id INTEGER PRIMARY KEY NOT NULL,
-    name STRING NOT NULL,
+    name STRING NOT NULL UNIQUE,
     description STRING,
     version STRING NOT NULL,
     image_url STRING,
