@@ -19,15 +19,26 @@ fn main() -> anyhow::Result<()> {
     db::validate_name_and_version(&args.db, &pkg_name, &version)?;
 
     let description = opts::get_description()?;
-    let url = opts::get_image_url()?;
-    let exe_path = opts::get_exe_path()?;
+    let image_url = opts::get_image_url()?;
+    let executable_path = opts::get_exe_path()?;
     let add_to_path = opts::add_to_path()?;
     let has_installer = opts::has_installer(&directory)?;
     let archive_name = format!("{pkg_name}-{version}.dcspkg");
 
-    archive::make_archive(&directory, &archive_name)?;
+    let crc = archive::make_archive(&directory, &archive_name)?;
 
-    let package = Package::default();
+    let package = Package {
+        id: 0,
+        name: pkg_name,
+        description,
+        version,
+        image_url,
+        archive_path: format!("{}/{}", args.directory, archive_name),
+        executable_path,
+        crc,
+        has_installer,
+        add_to_path,
+    };
 
     db::add_package_to_db(&args.db, package)?;
     Ok(())

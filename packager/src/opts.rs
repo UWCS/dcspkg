@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{bail, Context, Result};
 use dialoguer::{theme::ColorfulTheme, Input, Select};
 use std::path::Path;
 
