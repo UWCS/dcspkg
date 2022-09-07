@@ -52,12 +52,12 @@ pub fn get_image_url() -> Result<Option<String>> {
         .context("Could not get image URL")
 }
 
-pub fn get_exe_path() -> Result<Option<String>> {
+pub fn get_exe_path(base_dir: &Path) -> Result<Option<String>> {
     Input::<String>::with_theme(&ColorfulTheme::default())
-        .with_prompt("Enter the path to the executable within this package")
+        .with_prompt("Enter the relative path of the executable within this package")
         .allow_empty(true)
         .validate_with(|input: &String| {
-            let path = Path::new(input);
+            let path = base_dir.join(input);
             path.is_file()
                 .then_some(())
                 .ok_or("executable specified does not exist")

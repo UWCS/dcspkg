@@ -21,7 +21,7 @@ fn main() -> anyhow::Result<()> {
 
     let description = opts::get_description()?;
     let image_url = opts::get_image_url()?;
-    let executable_path = opts::get_exe_path()?;
+    let executable_path = opts::get_exe_path(&directory)?;
     let add_to_path = opts::add_to_path()?;
     let has_installer = opts::has_installer(&directory)?;
     let archive_name = format!("{pkg_name}-{version}.dcspkg");
