@@ -9,7 +9,6 @@ mod opts;
 
 fn main() -> anyhow::Result<()> {
     let args = Cli::parse();
-    dbg!(&args);
     let directory = PathBuf::from(&args.directory);
     println!("Creating new dcspkg from {directory:?}");
     println!("Please specify package options (skip to use defaults)");
