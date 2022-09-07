@@ -9,7 +9,7 @@ cur.execute(
     """
 CREATE TABLE packages(
     id INTEGER PRIMARY KEY NOT NULL,
-    name STRING NOT NULL UNIQUE,
+    name STRING NOT NULL,
     description STRING,
     version STRING NOT NULL,
     image_url STRING,
@@ -17,6 +17,7 @@ CREATE TABLE packages(
     executable_path STRING,
     crc INTEGER NOT NULL,
     has_installer INTEGER NOT NULL,
-    add_to_path INTEGER NOT NULL)
+    add_to_path INTEGER NOT NULL,
+    UNIQUE (name, version))
 """
 )
