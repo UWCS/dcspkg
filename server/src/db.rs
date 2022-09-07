@@ -10,10 +10,13 @@ pub async fn get_package_by_name(
     conn: &mut PoolConnection<Sqlite>,
     name: &str,
 ) -> Result<Option<Package>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM packages WHERE name=?")
+    let mut all: Vec<Package> = sqlx::query_as("SELECT * FROM packages WHERE name=?")
         .bind(name)
-        .fetch_optional(conn)
-        .await
+        .fetch_all(conn)
+        .await?;
+    //get latest version
+    all.sort_by_key(|p| semver::Version::parse(&p.version).unwrap());
+    Ok(all.pop())
 }
 
 pub async fn get_all_packages(
