@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use dialoguer::{theme::ColorfulTheme, Input, Select};
 use std::path::Path;
 
@@ -97,9 +97,8 @@ pub fn has_installer(dir: &Path) -> Result<bool> {
         .context("Could not get choice for install script")?;
     let script_path = dir.join("install.sh");
 
-    if script_path.is_file() && selection {
-        Ok(selection)
-    } else {
-        Err(anyhow!("Could not find install script at {script_path:?}"))
+    if selection && !script_path.is_file() {
+        bail!("Could not find install script at {script_path:?}")
     }
+    Ok(selection)
 }
