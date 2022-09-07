@@ -1510,6 +1510,7 @@ dependencies = [
  "dialoguer",
  "flate2",
  "semver",
+ "serde_json",
  "server",
  "smol",
  "sqlx 0.6.1",

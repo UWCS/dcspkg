@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use clap::Parser;
 use dcspkg_server::Package;
 use std::path::{Path, PathBuf};
@@ -25,22 +26,35 @@ fn main() -> anyhow::Result<()> {
     let has_installer = opts::has_installer(&directory)?;
     let archive_name = format!("{pkg_name}-{version}.dcspkg");
 
-    let crc = archive::make_archive(&directory, &archive_name)?;
+    print!("Creating tarball...");
+    let archive_path = args.pkg_dir.join(archive_name);
 
-    let package = Package {
+    let crc = archive::make_archive(&archive_path, &directory)?;
+
+    println!("done!");
+
+    let mut package = Package {
         id: 0,
         name: pkg_name,
         description,
         version,
         image_url,
-        archive_path: format!("{}/{}", args.directory, archive_name),
+        archive_path: archive_path
+            .to_str()
+            .ok_or_else(|| anyhow!("Error converting archive path to string"))?
+            .to_owned(),
         executable_path,
         crc,
         has_installer,
         add_to_path,
     };
 
-    db::add_package_to_db(&args.db, package)?;
+    package.id = db::add_package_to_db(&args.db, package.clone())?;
+
+    println!("{}", serde_json::to_string_pretty(&package)?);
+
+    println!("Added package to database");
+    println!("Your package is now ready for download!");
     Ok(())
 }
 
@@ -49,13 +63,13 @@ fn main() -> anyhow::Result<()> {
 struct Cli {
     /// The directory to package up
     #[clap(validator = dir_exists)]
-    directory: String,
+    directory: PathBuf,
     #[clap(short, long, value_parser, validator=file_exists)]
     #[clap(default_value = "packagedb.sqlite")]
-    db: String,
+    db: PathBuf,
     #[clap(short, long, value_parser, validator=dir_exists)]
     #[clap(default_value = "packages")]
-    pkg_dir: String,
+    pkg_dir: PathBuf,
 }
 
 fn dir_exists(f: &str) -> Result<(), &'static str> {

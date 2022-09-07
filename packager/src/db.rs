@@ -3,23 +3,24 @@ use sqlx::{
     sqlite::{self, SqliteConnection},
     Connection,
 };
+use std::path::Path;
 
-pub fn validate_name_and_version(db_path: &str, pkg_name: &str, version: &str) -> Result<()> {
+pub fn validate_name_and_version(db_path: &Path, pkg_name: &str, version: &str) -> Result<()> {
     smol::block_on(async { async_validate_name_and_version(db_path, pkg_name, version).await })
 }
 
-pub fn add_package_to_db(db_path: &str, package: dcspkg_server::Package) -> Result<()> {
+pub fn add_package_to_db(db_path: &Path, package: dcspkg_server::Package) -> Result<i64> {
     smol::block_on(async { async_add_package_to_db(db_path, package).await })
 }
 
 async fn async_validate_name_and_version(
-    db_path: &str,
+    db_path: &Path,
     pkg_name: &str,
     version: &str,
 ) -> Result<()> {
     let mut connection = connect(db_path).await?;
     let result: Result<Option<(String, String)>, sqlx::Error> =
-        sqlx::query_as("SELECT (name, version) FROM packages WHERE name=? AND version=?")
+        sqlx::query_as("SELECT name, version FROM packages WHERE name=? AND version=?")
             .bind(pkg_name)
             .bind(version)
             .fetch_optional(&mut connection)
@@ -34,7 +35,7 @@ async fn async_validate_name_and_version(
     }
 }
 
-async fn async_add_package_to_db(db_path: &str, package: dcspkg_server::Package) -> Result<()> {
+async fn async_add_package_to_db(db_path: &Path, package: dcspkg_server::Package) -> Result<i64> {
     let mut connection = connect(db_path).await?;
     sqlx::query(
         "INSERT INTO packages (name, description, version, image_url, archive_path, executable_path, crc, has_installer, add_to_path) VALUES (?,?,?,?,?,?,?,?,?)")
@@ -49,11 +50,14 @@ async fn async_add_package_to_db(db_path: &str, package: dcspkg_server::Package)
         .bind(package.add_to_path)
         .execute(&mut connection)
         .await
-        .map(|_|()).context("Could not insert package into database")
+        .map(|q|q.last_insert_rowid()).context("Could not insert package into database")
 }
 
-async fn connect(path: &str) -> Result<SqliteConnection> {
-    sqlite::SqliteConnection::connect(path)
-        .await
-        .context("Could not connect to database")
+async fn connect(path: &Path) -> Result<SqliteConnection> {
+    sqlite::SqliteConnection::connect(
+        path.to_str()
+            .ok_or_else(|| anyhow!("Could not convert database path to string"))?,
+    )
+    .await
+    .context("Could not connect to database")
 }

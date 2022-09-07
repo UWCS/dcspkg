@@ -5,8 +5,8 @@ use std::fs::File;
 use std::path::Path;
 
 //returns crc
-pub fn make_archive(dir_path: &Path, archive_name: &str) -> Result<u32> {
-    let archive = File::create(archive_name)?;
+pub fn make_archive(install_path: &Path, dir_path: &Path) -> Result<u32> {
+    let archive = File::create(install_path)?;
     let encoder = GzEncoder::new(archive, Compression::default());
     let encoder = CrcWriter::new(encoder);
     let mut tar = tar::Builder::new(encoder);
