@@ -9,10 +9,10 @@ pub struct PackageDB(rocket_db_pools::sqlx::SqlitePool);
 pub async fn get_package_by_name(
     conn: &mut PoolConnection<Sqlite>,
     name: &str,
-) -> Result<Package, sqlx::Error> {
+) -> Result<Option<Package>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM packages WHERE name=?")
         .bind(name)
-        .fetch_one(conn)
+        .fetch_optional(conn)
         .await
 }
 
