@@ -1,6 +1,6 @@
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use dcspkg_server::Package;
-use reqwest::{blocking::get, IntoUrl};
+use reqwest::{blocking::get, IntoUrl, StatusCode};
 
 pub fn list<U: IntoUrl>(url: U) -> Result<Vec<Package>> {
     //craft URL
@@ -13,12 +13,16 @@ pub fn list<U: IntoUrl>(url: U) -> Result<Vec<Package>> {
     log::info!("Downloading package list from {url}...");
 
     //fetch the list
-    let list: Vec<Package> = get(url.as_ref())
-        .context("Request failed")?
-        .json()
-        .context("Could not parse JSON response")?;
-
+    let response = get(url.as_ref()).context("Request failed")?;
     log::info!("Got reponse from {url}");
+    if response.status() != StatusCode::OK {
+        bail!(
+            "Response was not okay (got code {})",
+            response.status().as_u16()
+        )
+    }
+    let list: Vec<Package> = response.json().context("Could not parse JSON response")?;
+
     log::debug!("Package list: {list:?}");
 
     Ok(list)

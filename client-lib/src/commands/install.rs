@@ -1,9 +1,9 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use dcspkg_server::Package;
 use flate2::read::GzDecoder;
 use flate2::CrcReader;
 use reqwest::blocking::get;
-use reqwest::Url;
+use reqwest::{StatusCode, Url};
 use std::fs::{self, Permissions};
 use std::os::unix::fs::{symlink, PermissionsExt};
 use std::path::{Path, PathBuf};
@@ -55,12 +55,17 @@ fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
     log::info!("Downloading data for package {pkg_name} from {url}...");
 
     //download the package date as an option
-    let package: Option<Package> = get(url.as_ref())
-        .context("Request failed")?
-        .json()
-        .context("Could not parse JSON response")?;
-
+    let response = get(url.as_ref()).context("Request failed")?;
     log::info!("Got reponse from {url}");
+
+    if response.status() != StatusCode::OK {
+        bail!(
+            "Response was not okay (got code {})",
+            response.status().as_u16()
+        )
+    }
+    let package: Option<Package> = response.json().context("Could not parse JSON response")?;
+
     log::debug!("Package data: {package:?}");
 
     //if option empty then err here
@@ -79,9 +84,15 @@ fn download_install_file(
 
     log::info!("Downloading compressed package {pkg_name}.pkg from {url}...");
 
-    let response = reqwest::blocking::get(url.clone()).context("Request failed")?;
-
+    let response = get(url.as_ref()).context("Request failed")?;
     log::info!("Got reponse from {url}");
+
+    if response.status() != StatusCode::OK {
+        bail!(
+            "Response was not okay (got code {})",
+            response.status().as_u16()
+        )
+    }
 
     //the content of the response
     let compressed = response
