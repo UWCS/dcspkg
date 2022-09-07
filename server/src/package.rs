@@ -9,7 +9,7 @@ pub struct Package {
     pub id: i64,
     pub name: String,
     #[sqlx(default)]
-    pub description: String,
+    pub description: Option<String>,
     pub version: String,
     pub image_url: Option<String>,
     pub archive_path: String,
