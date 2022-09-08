@@ -1,4 +1,3 @@
-use anyhow::anyhow;
 use clap::Parser;
 use dcspkg_server::Package;
 use std::path::{Path, PathBuf};
@@ -26,7 +25,7 @@ fn main() -> anyhow::Result<()> {
     let archive_name = format!("{pkg_name}-{version}.dcspkg");
 
     print!("Creating tarball...");
-    let archive_path = args.pkg_dir.join(archive_name);
+    let archive_path = args.pkg_dir.join(&archive_name);
 
     let crc = archive::make_archive(&archive_path, &directory)?;
 
@@ -38,10 +37,7 @@ fn main() -> anyhow::Result<()> {
         description,
         version,
         image_url,
-        archive_path: archive_path
-            .to_str()
-            .ok_or_else(|| anyhow!("Error converting archive path to string"))?
-            .to_owned(),
+        archive_path: archive_name,
         executable_path,
         crc,
         has_installer,

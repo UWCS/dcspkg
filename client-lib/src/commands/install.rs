@@ -27,7 +27,7 @@ pub fn install<P: AsRef<Path>>(
     fs::create_dir_all(&install_path).context("Could not create install directory for package")?;
 
     //download, checksum, and decompress into PKGDIR/bin
-    download_install_file(pkg_name, pkg.crc, &server_url, &install_path)
+    download_install_file(&pkg.archive_path, pkg.crc, &server_url, &install_path)
         .context("Could not install file")?;
 
     //run install.sh if exists
@@ -79,7 +79,7 @@ fn download_install_file(
     install_path: &Path,
 ) -> Result<()> {
     let url = server_url
-        .join(format!("{}/{}.dcspkg", crate::FILE_ENDPOINT, pkg_name).as_ref())
+        .join(format!("{}/{}", crate::FILE_ENDPOINT, pkg_name).as_ref())
         .context("Could not parse URL")?;
 
     log::info!("Downloading compressed package {pkg_name}.pkg from {url}...");
