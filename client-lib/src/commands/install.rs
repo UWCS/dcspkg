@@ -58,18 +58,18 @@ fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
     let response = get(url.as_ref()).context("Request failed")?;
     log::info!("Got reponse from {url}");
 
-    if response.status() != StatusCode::OK {
-        bail!(
-            "Response was not okay (got code {})",
-            response.status().as_u16()
-        )
+    match response.status() {
+        StatusCode::OK => (),
+        StatusCode::NOT_FOUND => bail!("Package does not exist on server (404)"),
+        r => bail!("Response from server was not okay (code {})", r.as_u16()),
     }
-    let package: Option<Package> = response.json().context("Could not parse JSON response")?;
+
+    let package: Package = response.json().context("Could not parse JSON response")?;
 
     log::debug!("Package data: {package:?}");
 
     //if option empty then err here
-    package.ok_or_else(|| anyhow!("Package {pkg_name} does not exist on server"))
+    Ok(package)
 }
 
 fn download_install_file(
