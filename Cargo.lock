@@ -2161,6 +2161,7 @@ dependencies = [
  "dotenv",
  "rocket",
  "rocket_db_pools",
+ "semver",
  "serde",
  "sqlx 0.5.13",
 ]
