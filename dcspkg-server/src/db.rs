@@ -1,4 +1,4 @@
-use dcspkg_server::Package;
+use dcspkg_common::Package;
 use rocket_db_pools::Database;
 use sqlx::{self, pool::PoolConnection, Sqlite};
 

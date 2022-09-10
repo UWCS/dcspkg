@@ -1,5 +1,5 @@
 [package]
-name = "packager"
+name = "dcspkg_create"
 version = "0.1.0"
 edition = "2021"
 
@@ -15,5 +15,5 @@ clap = { version = "3.2.20", features = ["derive", "cargo"] }
 dialoguer = "0.10.2"
 semver = "1.0"
 url = "2.3.0"
-server = { path = "../server" }
+dcspkg_common = { path = "../dcspkg-common" }
 sqlx = { version = "0.6.1", features = ["sqlite", "runtime-async-std-rustls"] }

@@ -1,5 +1,5 @@
 use crate::db::{get_all_packages, get_package_by_name, PackageDB};
-use dcspkg_server::Package;
+use dcspkg_common::Package;
 use rocket::get;
 use rocket::serde::json::Json;
 use rocket_db_pools::Connection;

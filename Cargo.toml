@@ -1,2 +1,8 @@
 [workspace]
-members = ["client-lib", "server", "cli", "packager"]
+members = [
+    "dcspkg",
+    "dcspkg-client",
+    "dcspkg-server",
+    "dcspkg-create",
+    "dcspkg-common",
+]

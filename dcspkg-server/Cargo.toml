@@ -1,5 +1,5 @@
 [package]
-name = "server"
+name = "dcspkg_server"
 version = "0.1.0"
 edition = "2021"
 
@@ -14,11 +14,4 @@ semver = "1.0"
 # we have to depend directly on sqlx due to macro fuckery
 rocket_db_pools = { version = "0.1.0-rc.2", features = ["sqlx_sqlite"] }
 sqlx = { version = "0.5", features = ["sqlite", "runtime-tokio-rustls"] }
-
-[lib]
-name = "dcspkg_server"
-path = "src/lib.rs"
-
-[[bin]]
-name = "server"
-path = "src/server.rs"
+dcspkg_common = { path = "../dcspkg-common" }

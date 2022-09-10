@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context, Result};
+use dcspkg_common::Package;
 use sqlx::{
     sqlite::{self, SqliteConnection},
     Connection,
@@ -9,7 +10,7 @@ pub fn validate_name_and_version(db_path: &Path, pkg_name: &str, version: &str) 
     smol::block_on(async { async_validate_name_and_version(db_path, pkg_name, version).await })
 }
 
-pub fn add_package_to_db(db_path: &Path, package: dcspkg_server::Package) -> Result<i64> {
+pub fn add_package_to_db(db_path: &Path, package: Package) -> Result<i64> {
     smol::block_on(async { async_add_package_to_db(db_path, package).await })
 }
 
@@ -35,7 +36,7 @@ async fn async_validate_name_and_version(
     }
 }
 
-async fn async_add_package_to_db(db_path: &Path, package: dcspkg_server::Package) -> Result<i64> {
+async fn async_add_package_to_db(db_path: &Path, package: Package) -> Result<i64> {
     let mut connection = connect(db_path).await?;
     sqlx::query(
         "INSERT INTO packages (name, description, version, image_url, archive_path, executable_path, crc, has_installer, add_to_path) VALUES (?,?,?,?,?,?,?,?,?)")

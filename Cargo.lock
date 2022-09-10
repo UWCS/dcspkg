@@ -598,13 +598,52 @@ name = "dcspkg_client"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "dcspkg_common",
  "flate2",
  "log",
  "reqwest",
  "serde",
- "server",
  "tar",
  "tempfile",
+]
+
+[[package]]
+name = "dcspkg_common"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "sqlx 0.5.13",
+]
+
+[[package]]
+name = "dcspkg_create"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "dcspkg_common",
+ "dialoguer",
+ "flate2",
+ "semver",
+ "serde_json",
+ "smol",
+ "sqlx 0.6.1",
+ "tar",
+ "url",
+]
+
+[[package]]
+name = "dcspkg_server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "dcspkg_common",
+ "dotenv",
+ "rocket",
+ "rocket_db_pools",
+ "semver",
+ "serde",
+ "sqlx 0.5.13",
 ]
 
 [[package]]
@@ -1502,23 +1541,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9ff7415e9ae3fff1225851df9e0d9e4e5479f947619774677a63572e55e80eff"
 
 [[package]]
-name = "packager"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "dialoguer",
- "flate2",
- "semver",
- "serde_json",
- "server",
- "smol",
- "sqlx 0.6.1",
- "tar",
- "url",
-]
-
-[[package]]
 name = "parking"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2151,19 +2173,6 @@ dependencies = [
  "itoa",
  "ryu",
  "serde",
-]
-
-[[package]]
-name = "server"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "dotenv",
- "rocket",
- "rocket_db_pools",
- "semver",
- "serde",
- "sqlx 0.5.13",
 ]
 
 [[package]]
