@@ -17,5 +17,7 @@ fn main() -> anyhow::Result<()> {
 
     env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
 
+    std::fs::create_dir_all(&*crate::config::DCSPKG_DIR)?;
+
     cli.command.run(crate::config::DcspkgConfig::get()?)
 }

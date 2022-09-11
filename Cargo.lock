@@ -613,6 +613,7 @@ dependencies = [
  "env_logger",
  "home",
  "lazy_static",
+ "log",
  "serde",
  "toml",
 ]

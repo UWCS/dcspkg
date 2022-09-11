@@ -47,9 +47,10 @@ impl Default for Registry {
 
 impl DcspkgConfig {
     pub fn get() -> anyhow::Result<Self> {
-        let config_file_path = DCSPKG_DIR.join("config");
+        let config_file_path = DCSPKG_DIR.join("config.toml");
 
         if !config_file_path.exists() {
+            log::info!("Config file does not exist");
             create_default_config_file(&config_file_path)
                 .context("Could not create config file")?;
         }
@@ -58,7 +59,7 @@ impl DcspkgConfig {
             .add_source(
                 File::with_name(
                     DCSPKG_DIR
-                        .join("config")
+                        .join("config.toml")
                         .to_str()
                         .expect("Could not build config file name"),
                 )
@@ -67,6 +68,8 @@ impl DcspkgConfig {
             .add_source(Environment::with_prefix("DCSPKG"))
             .build()?;
 
+        log::info!("Loaded config from file and environment");
+
         config.try_deserialize().map_err(Into::into)
     }
 }
@@ -74,5 +77,7 @@ impl DcspkgConfig {
 fn create_default_config_file(path: &Path) -> anyhow::Result<()> {
     let default_contents = toml::to_string_pretty(&DcspkgConfig::default())
         .context("Error in serializing default config struct")?;
-    std::fs::write(path, default_contents).context("Could not write to file")
+    let result = std::fs::write(path, default_contents).context("Could not write to file");
+    log::info!("Created new config file from defaults");
+    result
 }
