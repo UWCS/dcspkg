@@ -614,6 +614,7 @@ dependencies = [
  "home",
  "lazy_static",
  "serde",
+ "toml",
 ]
 
 [[package]]
