@@ -17,5 +17,5 @@ fn main() -> anyhow::Result<()> {
 
     env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
 
-    cli.command.run(crate::config::SERVER_URL)
+    cli.command.run(crate::config::DcspkgConfig::get()?)
 }

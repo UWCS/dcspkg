@@ -1,3 +1,4 @@
+use crate::config::DcspkgConfig;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -21,11 +22,18 @@ pub enum Command {
 }
 
 impl Command {
-    pub fn run(&self, url: &str) -> anyhow::Result<()> {
+    pub fn run(&self, config: DcspkgConfig) -> anyhow::Result<()> {
         use Command::*;
         match &self {
-            List => dcspkg_client::list(url).map(|v| v.into_iter().for_each(|p| println!("{p:?}"))),
-            Install { package } => dcspkg_client::install(crate::config::INSTALL_DIR, package, url),
+            List => dcspkg_client::list(config.server.url)
+                .map(|v| v.into_iter().for_each(|p| println!("{p:?}"))),
+            Install { package } => dcspkg_client::install(
+                package,
+                config.server.url,
+                config.registry.install_dir,
+                config.registry.bin_dir,
+                config.registry.registry_file,
+            ),
         }
     }
 }
