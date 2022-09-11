@@ -172,10 +172,13 @@ fn add_to_registry(registry_file: &Path, package: Package) -> Result<()> {
 
     let mut loaded: Vec<Package> =
         serde_json::from_reader(&file).context("Could not deserialize registry file context")?;
+    log::debug!("Deserialised contents of registry fike");
 
     loaded.push(package);
 
     serde_json::to_writer(&file, &loaded).context("Could not write registry back to file")?;
+
+    log::info!("Added package to local registry");
 
     Ok(())
 }
