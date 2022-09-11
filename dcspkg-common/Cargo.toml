@@ -6,5 +6,5 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-sqlx = { version = "0.5", features = ["sqlite", "runtime-tokio-rustls"] }
-serde = { version = "1.0", features = ["derive"] }
+sqlx = { version = "0.5.13", features = ["sqlite", "runtime-tokio-rustls"] }
+serde = { version = "1.0.144", features = ["derive"] }
