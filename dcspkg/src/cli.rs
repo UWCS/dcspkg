@@ -19,6 +19,8 @@ pub enum Command {
     List,
     /// Install a package
     Install { package: String },
+    ///Show all installed packages and their versions
+    Installed,
 }
 
 impl Command {
@@ -34,6 +36,14 @@ impl Command {
                 config.registry.bin_dir,
                 config.registry.registry_file,
             ),
+            Installed => {
+                let reader = std::fs::File::open(config.registry.registry_file)?;
+                let installed: Vec<dcspkg_client::Package> = serde_json::from_reader(reader)?;
+                installed
+                    .into_iter()
+                    .for_each(|pkg| println!("{} v{}", pkg.name, pkg.version));
+                Ok(())
+            }
         }
     }
 }

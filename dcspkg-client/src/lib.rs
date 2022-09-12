@@ -6,3 +6,4 @@ const LIST_ENDPOINT: &str = "/list";
 
 pub use commands::install::install;
 pub use commands::list::list;
+pub use dcspkg_common::Package;
