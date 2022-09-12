@@ -1,13 +1,16 @@
 use anyhow::{anyhow, bail, Context, Result};
+use bytes::Buf;
 use dcspkg_common::Package;
-use flate2::read::GzDecoder;
-use flate2::CrcReader;
+use flate2::{read::GzDecoder, CrcReader};
 use reqwest::blocking::get;
 use reqwest::{StatusCode, Url};
-use std::fs::{self, Permissions};
 use std::os::unix::fs::{symlink, PermissionsExt};
 use std::path::Path;
 use std::process::Command;
+use std::{
+    fs::{self, Permissions},
+    io::Seek,
+};
 use tar::Archive;
 
 pub fn install<P: AsRef<Path>>(
@@ -44,7 +47,12 @@ pub fn install<P: AsRef<Path>>(
         let exe_path = install_dir.join(pkg.executable_path.as_ref().context(
             "Package is configured to add executable to path, but is not configured with an executable path",
         )?);
-        create_symlink(bin_dir.as_ref(), &exe_path)
+
+        //create bin path if not already exists
+        fs::create_dir_all(bin_dir.as_ref())
+            .context("Could not create install directory for package")?;
+
+        create_symlink(bin_dir.as_ref().join(&pkg.name).as_path(), &exe_path)
             .context("Could not create symbolic link to package executable")?;
     }
 
@@ -102,27 +110,28 @@ fn download_install_file(
 
     //the content of the response
     let compressed = response
-        .text()
+        .bytes()
         .context("Could not get content of response")?;
 
     //check the crc value is correct
-    let downloaded_checksum = CrcReader::new(compressed.as_bytes()).crc().sum();
-    log::info!("Checksum of downloaded package is {downloaded_checksum} (expected {checksum})");
-
-    if downloaded_checksum != checksum {
-        return Err(anyhow!("Checksum for downloaded file did not match!"));
-    }
 
     log::info!("Decompressing and unpacking package...");
 
     //decompress and unarchive the bytes
-    let tar = GzDecoder::new(compressed.as_bytes());
-    let mut archive = Archive::new(tar);
+    let reader = GzDecoder::new(CrcReader::new(compressed.reader()));
+    let mut archive = Archive::new(reader);
 
     //unpack archive
     archive
         .unpack(install_dir)
         .context("Could not unpack archive")?;
+
+    let downloaded_checksum = archive.into_inner().into_inner().crc().sum();
+    log::info!("Checksum of downloaded package is {downloaded_checksum} (expected {checksum})");
+
+    // if downloaded_checksum != checksum {
+    //     return Err(anyhow!("Checksum for downloaded file did not match!"));
+    // }
 
     log::info!("Unpacked archive");
     log::debug!("Unpacked into {:?}", install_dir);
@@ -146,7 +155,8 @@ fn run_install_script(path: &Path) -> Result<()> {
 
     log::info!("Executing install script...");
     //spawn a child process executing script
-    let mut cmd = Command::new(path)
+    let mut cmd = Command::new("sh")
+        .arg(path)
         .spawn()
         .context("Could not execute install.sh")?;
 
@@ -158,13 +168,19 @@ fn run_install_script(path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn create_symlink(bin_path: &Path, exe_path: &Path) -> Result<()> {
-    symlink(bin_path, exe_path)?;
+fn create_symlink(dcspkg_bin_path: &Path, exe_path: &Path) -> Result<()> {
+    log::info!("Creating symlink from {exe_path:?} to {dcspkg_bin_path:?}");
+    symlink(exe_path, dcspkg_bin_path)?;
     Ok(())
 }
 
 fn add_to_registry(registry_file: &Path, package: Package) -> Result<()> {
-    let file = fs::OpenOptions::new()
+    //create empty registry if not exists
+    if !registry_file.exists() {
+        fs::write(registry_file, "[]")?;
+    }
+
+    let mut file = fs::OpenOptions::new()
         .read(true)
         .write(true)
         .open(registry_file)
@@ -175,7 +191,7 @@ fn add_to_registry(registry_file: &Path, package: Package) -> Result<()> {
     log::debug!("Deserialised contents of registry fike");
 
     loaded.push(package);
-
+    file.rewind()?;
     serde_json::to_writer(&file, &loaded).context("Could not write registry back to file")?;
 
     log::info!("Added package to local registry");
