@@ -20,4 +20,4 @@ semver = "1.0.13"
 # we have to depend directly on sqlx due to macro fuckery
 rocket_db_pools = { version = "0.1.0-rc.2", features = ["sqlx_sqlite"] }
 sqlx = { version = "0.5.13", features = ["sqlite", "runtime-tokio-rustls"] }
-dcspkg_common = { path = "../dcspkg-common" }
+dcspkg_common = { path = "../dcspkg-common", version = "0.1" }
