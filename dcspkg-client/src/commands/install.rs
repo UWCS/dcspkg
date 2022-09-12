@@ -166,14 +166,33 @@ fn run_install_script(path: &Path) -> Result<()> {
         .context("Failed to set file permissions for install script")?;
 
     log::info!("Executing install script...");
+
     //spawn a child process executing script
-    let mut cmd = Command::new("sh")
+    let output = Command::new("sh")
         .arg(&script)
-        .spawn()
+        .output()
         .context("Could not execute install.sh")?;
 
-    //wait for it to finish
-    cmd.wait()?;
+    if !output.stdout.is_empty() {
+        log::info!(
+            "Install script stdout: {}",
+            String::from_utf8_lossy(&output.stdout)
+        )
+    }
+
+    if !output.stderr.is_empty() {
+        log::info!(
+            "Install script stderr: {}",
+            String::from_utf8_lossy(&output.stderr)
+        )
+    }
+
+    if !output.status.success() {
+        bail!(
+            "Install script exited with code {}",
+            output.status.to_string()
+        )
+    }
 
     log::info!("Install script finished, cleaning up...");
     fs::remove_file(&script).context("Could not remove script")?;
