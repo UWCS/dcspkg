@@ -2,6 +2,11 @@
 name = "dcspkg_client"
 version = "0.1.0"
 edition = "2021"
+authors = ["Joey Harrison <joeyh021@icloud.com>"]
+rust-version = "1.63"
+description = "A client library for the dcspkg API"
+repository = "https://github.com/uwcs/dcspkg"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
