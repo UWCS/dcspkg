@@ -1,2 +1,7 @@
-[debug.databases.packagedb]
+[release]
+address = "0.0.0.0"
+port = 8000
+
+
+[default.databases.packagedb]
 url = "packagedb.sqlite"
