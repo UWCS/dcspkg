@@ -25,6 +25,7 @@ pub fn install<P: AsRef<Path>>(
         .context("Could not parse server URL")?;
 
     let package_dir = package_dir.as_ref();
+    let bin_dir = bin_dir.as_ref();
 
     //get package data
     let pkg =
@@ -44,16 +45,26 @@ pub fn install<P: AsRef<Path>>(
     }
 
     if pkg.add_to_path {
-        let exe_path = install_dir.join(pkg.executable_path.as_ref().context(
-            "Package is configured to add executable to path, but is not configured with an executable path",
-        )?);
+        //the relative path from within the package
+        let relative_exe_path: &Path = pkg.executable_path.as_ref().context("Package is configured to add executable to path, but is not configured with an executable path")?.as_ref();
+
+        //the symlink to create in /bin, on path
+        let bin_exe_path = bin_dir.join(
+            relative_exe_path
+                .file_name()
+                .context("Could not get file name from executable path")?,
+        );
+
+        //the symlink target, in /packages/<pkg-name>
+        let package_exe_path = install_dir.join(relative_exe_path);
 
         //create bin path if not already exists
-        fs::create_dir_all(bin_dir.as_ref())
-            .context("Could not create install directory for package")?;
+        fs::create_dir_all(bin_dir).context("Could not create bin directory")?;
 
-        create_symlink(bin_dir.as_ref().join(&pkg.name).as_path(), &exe_path)
-            .context("Could not create symbolic link to package executable")?;
+        let link: &Path = &bin_exe_path;
+        let source: &Path = &package_exe_path;
+        log::info!("Creating symlink to {package_exe_path:?} at {bin_exe_path:?}");
+        symlink(source, link).context("Could not create symbolic link to package executable")?;
     }
 
     add_to_registry(registry_file.as_ref(), pkg).context("Could not add package to registry")?;
@@ -151,12 +162,13 @@ fn run_install_script(path: &Path) -> Result<()> {
     log::info!("Got install script at {script:?}");
 
     //set the scripts perms to allow us to execute it
-    fs::set_permissions(&script, Permissions::from_mode(0o764))?;
+    fs::set_permissions(&script, Permissions::from_mode(0o764))
+        .context("Failed to set file permissions for install script")?;
 
     log::info!("Executing install script...");
     //spawn a child process executing script
     let mut cmd = Command::new("sh")
-        .arg(path)
+        .arg(&script)
         .spawn()
         .context("Could not execute install.sh")?;
 
@@ -168,16 +180,10 @@ fn run_install_script(path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn create_symlink(dcspkg_bin_path: &Path, exe_path: &Path) -> Result<()> {
-    log::info!("Creating symlink from {exe_path:?} to {dcspkg_bin_path:?}");
-    symlink(exe_path, dcspkg_bin_path)?;
-    Ok(())
-}
-
 fn add_to_registry(registry_file: &Path, package: Package) -> Result<()> {
     //create empty registry if not exists
     if !registry_file.exists() {
-        fs::write(registry_file, "[]")?;
+        fs::write(registry_file, "[]").context("Could not create package registry")?;
     }
 
     let mut file = fs::OpenOptions::new()
@@ -188,11 +194,12 @@ fn add_to_registry(registry_file: &Path, package: Package) -> Result<()> {
 
     let mut loaded: Vec<Package> =
         serde_json::from_reader(&file).context("Could not deserialize registry file context")?;
-    log::debug!("Deserialised contents of registry fike");
+    log::debug!("Deserialised contents of registry file");
 
     loaded.push(package);
-    file.rewind()?;
-    serde_json::to_writer(&file, &loaded).context("Could not write registry back to file")?;
+    file.rewind()
+        .and_then(|_| serde_json::to_writer(&file, &loaded).map_err(Into::into))
+        .context("Could not write registry back to file")?;
 
     log::info!("Added package to local registry");
 
