@@ -3,6 +3,7 @@ use env_logger::Env;
 
 mod cli;
 mod config;
+mod util;
 
 fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();

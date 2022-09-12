@@ -1,4 +1,6 @@
 use crate::config::DcspkgConfig;
+use crate::util::print_package_list;
+use anyhow::Context;
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
@@ -27,8 +29,11 @@ impl Command {
     pub fn run(&self, config: DcspkgConfig) -> anyhow::Result<()> {
         use Command::*;
         match &self {
-            List => dcspkg_client::list(config.server.url)
-                .map(|v| v.into_iter().for_each(|p| println!("{p:?}"))),
+            List => {
+                let list = dcspkg_client::list(config.server.url)?;
+                print_package_list(&list);
+                Ok(())
+            }
             Install { package } => dcspkg_client::install(
                 package,
                 config.server.url,
@@ -37,11 +42,11 @@ impl Command {
                 config.registry.registry_file,
             ),
             Installed => {
-                let reader = std::fs::File::open(config.registry.registry_file)?;
-                let installed: Vec<dcspkg_client::Package> = serde_json::from_reader(reader)?;
-                installed
-                    .into_iter()
-                    .for_each(|pkg| println!("{} v{}", pkg.name, pkg.version));
+                let reader = std::fs::File::open(config.registry.registry_file)
+                    .context("Could not find registry file")?;
+                let list: Vec<dcspkg_client::Package> = serde_json::from_reader(reader)
+                    .context("Could not parse JSON from registry")?;
+                print_package_list(&list);
                 Ok(())
             }
         }
