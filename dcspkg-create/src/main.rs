@@ -60,10 +60,10 @@ struct Cli {
     #[clap(validator = dir_exists)]
     directory: PathBuf,
     #[clap(short, long, value_parser, validator=file_exists)]
-    #[clap(default_value = "packagedb.sqlite")]
+    #[clap(default_value = "packages/packagedb.sqlite")]
     db: PathBuf,
     #[clap(short, long, value_parser, validator=dir_exists)]
-    #[clap(default_value = "packages")]
+    #[clap(default_value = "packages/packages")]
     pkg_dir: PathBuf,
 }
 
