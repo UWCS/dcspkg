@@ -1,4 +1,4 @@
-//! This library contains types exposed by the `server` package, with the idea that they should be used in the client library.
+//! This library contains types and utility functions for use in other `dcspkg` crates.
 mod package;
 
 pub use package::Package;
