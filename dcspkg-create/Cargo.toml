@@ -8,8 +8,8 @@ description = "A command line tool to create dcspkg packages"
 repository = "https://github.com/uwcs/dcspkg"
 license = "MIT"
 
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package.metadata]
+release = { release = false }
 
 [dependencies]
 serde_json = "1.0.85"

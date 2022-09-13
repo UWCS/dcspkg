@@ -6,3 +6,6 @@ members = [
     "dcspkg-create",
     "dcspkg-common",
 ]
+
+[workspace.metadata.release]
+consolidate-pushes = true

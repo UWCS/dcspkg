@@ -8,8 +8,9 @@ description = "The web api for dcspkg"
 repository = "https://github.com/uwcs/dcspkg"
 license = "MIT"
 
+[package.metadata]
+release = { release = false }
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 rocket = { version = "0.5.0-rc.2", features = ["json"] }
