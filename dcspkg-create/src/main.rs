@@ -46,7 +46,7 @@ fn main() -> anyhow::Result<()> {
         add_to_path,
     };
 
-    package.id = db::add_package_to_db(&args.db, package.clone())?;
+    db::add_package_to_db(&args.db, &mut package)?;
 
     println!("{}", serde_json::to_string_pretty(&package)?);
 

@@ -10,7 +10,7 @@ pub fn validate_name_and_version(db_path: &Path, pkg_name: &str, version: &str) 
     smol::block_on(async { async_validate_name_and_version(db_path, pkg_name, version).await })
 }
 
-pub fn add_package_to_db(db_path: &Path, package: Package) -> Result<i64> {
+pub fn add_package_to_db(db_path: &Path, package: &mut Package) -> Result<()> {
     smol::block_on(async { async_add_package_to_db(db_path, package).await })
 }
 
@@ -36,22 +36,23 @@ async fn async_validate_name_and_version(
     }
 }
 
-async fn async_add_package_to_db(db_path: &Path, package: Package) -> Result<i64> {
+async fn async_add_package_to_db(db_path: &Path, package: &mut Package) -> Result<()> {
     let mut connection = connect(db_path).await?;
-    sqlx::query(
+    let query = sqlx::query(
         "INSERT INTO packages (name, description, version, image_url, archive_path, executable_path, crc, has_installer, add_to_path) VALUES (?,?,?,?,?,?,?,?,?)")
-        .bind(package.name)
-        .bind(package.description)
-        .bind(package.version)
-        .bind(package.image_url)
-        .bind(package.archive_path)
-        .bind(package.executable_path)
+        .bind(&package.name)
+        .bind(&package.description)
+        .bind(&package.version)
+        .bind(&package.image_url)
+        .bind(&package.archive_path)
+        .bind(&package.executable_path)
         .bind(package.crc)
         .bind(package.has_installer)
         .bind(package.add_to_path)
         .execute(&mut connection)
-        .await
-        .map(|q|q.last_insert_rowid()).context("Could not insert package into database")
+        .await.context("Could not insert package into database")?;
+    package.id = query.last_insert_rowid();
+    Ok(())
 }
 
 async fn connect(path: &Path) -> Result<SqliteConnection> {
