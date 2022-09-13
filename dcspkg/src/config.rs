@@ -65,7 +65,7 @@ impl DcspkgConfig {
                 )
                 .required(true),
             )
-            .add_source(Environment::with_prefix("DCSPKG"))
+            .add_source(Environment::with_prefix("DCSPKG").separator("_"))
             .build()?;
 
         log::info!("Loaded config from file and environment");
