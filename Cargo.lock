@@ -2004,6 +2004,7 @@ dependencies = [
  "native-tls",
  "percent-encoding",
  "pin-project-lite",
+ "rustls 0.20.6",
  "serde",
  "serde_json",
  "serde_urlencoded",
