@@ -1,7 +1,7 @@
 use clap::Parser;
 use dcspkg_common::Package;
+use std::io::Write;
 use std::path::{Path, PathBuf};
-
 mod archive;
 mod db;
 mod opts;
@@ -25,6 +25,8 @@ fn main() -> anyhow::Result<()> {
     let archive_name = format!("{pkg_name}-{version}.dcspkg");
 
     print!("Creating tarball...");
+    std::io::stdout().flush()?; //print with no newline so force a flush
+
     let archive_path = args.pkg_dir.join(&archive_name);
 
     let crc = archive::make_archive(&archive_path, &directory)?;
