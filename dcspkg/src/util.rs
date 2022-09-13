@@ -13,7 +13,7 @@ pub fn print_package_list(list: &[Package]) {
             Row::new()
                 .with_cell(&pkg.name)
                 .with_cell(&pkg.version)
-                .with_cell(pkg.description.as_ref().unwrap_or(&Default::default())),
+                .with_cell(pkg.description.as_deref().unwrap_or("-")),
         );
     }
 
