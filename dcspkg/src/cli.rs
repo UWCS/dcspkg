@@ -2,6 +2,9 @@ use crate::config::DcspkgConfig;
 use crate::util::print_package_list;
 use anyhow::Context;
 use clap::{Parser, Subcommand};
+use dcspkg_client::Package;
+use std::os::unix::process::CommandExt;
+use std::path::Path;
 
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
@@ -23,6 +26,8 @@ pub enum Command {
     Install { package: String },
     ///Show all installed packages and their versions
     Installed,
+    ///Run the executable from the package specified
+    Run { package: String },
 }
 
 impl Command {
@@ -30,8 +35,7 @@ impl Command {
         use Command::*;
         match &self {
             List => {
-                let list = dcspkg_client::list(config.server.url)?;
-                print_package_list(&list);
+                print_package_list(&dcspkg_client::list(config.server.url)?);
                 Ok(())
             }
             Install { package } => dcspkg_client::install(
@@ -42,13 +46,35 @@ impl Command {
                 config.registry.registry_file,
             ),
             Installed => {
-                let reader = std::fs::File::open(config.registry.registry_file)
-                    .context("Could not find registry file")?;
-                let list: Vec<dcspkg_client::Package> = serde_json::from_reader(reader)
-                    .context("Could not parse JSON from registry")?;
-                print_package_list(&list);
+                print_package_list(&get_registry(&config.registry.registry_file)?);
                 Ok(())
+            }
+            Run { package } => {
+                let package_data = get_registry(&config.registry.registry_file)?
+                    .into_iter()
+                    .find(|pkg| pkg.name == *package)
+                    .context(format!(
+                        "Could not find a package with the name {} in {:?}",
+                        package, config.registry.registry_file
+                    ))?;
+
+                let exe_path = config.registry.install_dir.join(package_data.name).join(
+                    package_data
+                        .executable_path
+                        .context("No executable exists for this package")?,
+                );
+
+                //will only return if there is an error
+                Err(std::process::Command::new(exe_path).exec()).map_err(Into::into)
             }
         }
     }
+}
+
+fn get_registry(path: &Path) -> anyhow::Result<Vec<Package>> {
+    std::fs::File::open(path)
+        .context("Could not find registry file")
+        .and_then(|reader| {
+            serde_json::from_reader(reader).context("Could not parse JSON from registry")
+        })
 }
