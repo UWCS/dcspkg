@@ -15,7 +15,7 @@ tabular = "0.2.0"
 config = { version = "0.13.2", features = ["toml"] }
 clap = { version = "3.2.20", features = ["derive", "cargo"] }
 env_logger = "0.9.0"
-dcspkg_client = { path = "../dcspkg-client", version = "0.1.0" }
+dcspkg_client = { path = "../dcspkg-client", version = "0.1" }
 anyhow = "1.0.64"
 serde = { version = "1.0.144", features = ["derive"] }
 lazy_static = "1.4.0"
