@@ -28,7 +28,10 @@ pub enum Command {
     /// Install a package
     Install { package: String },
     ///Show all installed packages and their versions
-    Installed,
+    Installed {
+        #[clap(long, short, action)]
+        json: bool
+    },
     ///Run the executable from the package specified
     Run { package: String },
 }
@@ -39,12 +42,7 @@ impl Command {
         match &self {
             List { json } => {
                 let packages = dcspkg_client::list(config.server.url)?;
-                if *json {
-                    println!("{}", serde_json::to_string(&packages)?)
-                } else {
-                    print_package_list(&packages);
-                }
-                Ok(())
+                print_package_list(&packages, *json).context("Cannot format package list")
             }
             Install { package } => dcspkg_client::install(
                 package,
@@ -53,9 +51,9 @@ impl Command {
                 config.registry.bin_dir,
                 config.registry.registry_file,
             ),
-            Installed => {
-                print_package_list(&get_registry(&config.registry.registry_file)?);
-                Ok(())
+            Installed { json } => {
+                let packages = &get_registry(&config.registry.registry_file)?;
+                print_package_list(packages, *json).context("Cannot format package list")
             }
             Run { package } => {
                 let package_data = get_registry(&config.registry.registry_file)?
