@@ -21,7 +21,10 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Command {
     ///List all packages available for install
-    List,
+    List {
+        #[clap(long, short, action)]
+        json: bool
+    },
     /// Install a package
     Install { package: String },
     ///Show all installed packages and their versions
@@ -34,8 +37,13 @@ impl Command {
     pub fn run(&self, config: DcspkgConfig) -> anyhow::Result<()> {
         use Command::*;
         match &self {
-            List => {
-                print_package_list(&dcspkg_client::list(config.server.url)?);
+            List { json } => {
+                let packages = dcspkg_client::list(config.server.url)?;
+                if *json {
+                    println!("{}", serde_json::to_string(&packages)?)
+                } else {
+                    print_package_list(&packages);
+                }
                 Ok(())
             }
             Install { package } => dcspkg_client::install(
