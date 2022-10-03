@@ -1,6 +1,8 @@
 #! /bin/sh
 
-sqlite3 packagedb.sqlite \
+mkdir -p packages/packages
+touch packages/packagedb.sqlite
+sqlite3 packages/packagedb.sqlite \
 "CREATE TABLE packages(       
     id INTEGER PRIMARY KEY NOT NULL,  
     name STRING NOT NULL,             

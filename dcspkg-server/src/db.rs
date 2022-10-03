@@ -19,6 +19,19 @@ pub async fn get_package_by_name(
     Ok(all.pop())
 }
 
+pub async fn get_package_by_id(
+    conn: &mut PoolConnection<Sqlite>,
+    id: i64,
+) -> Result<Option<Package>, sqlx::Error> {
+    let mut all: Vec<Package> = sqlx::query_as("SELECT * FROM packages WHERE id=?")
+        .bind(id)
+        .fetch_all(conn)
+        .await?;
+    //get latest version
+    all.sort_by_key(|p| semver::Version::parse(&p.version).unwrap());
+    Ok(all.pop())
+}
+
 pub async fn get_all_packages(
     conn: &mut PoolConnection<Sqlite>,
 ) -> Result<Vec<Package>, sqlx::Error> {
