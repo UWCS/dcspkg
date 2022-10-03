@@ -4,6 +4,3 @@ port = 8000
 
 [debug.databases.packagedb]
 url = "packages/packagedb.sqlite"
-
-[release.databases.packagedb]
-url = "packages/packagedb.sqlite"

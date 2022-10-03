@@ -23,14 +23,14 @@ pub enum Command {
     ///List all packages available for install
     List {
         #[clap(long, short, action)]
-        json: bool
+        json: bool,
     },
     /// Install a package
     Install { package: String },
     ///Show all installed packages and their versions
     Installed {
         #[clap(long, short, action)]
-        json: bool
+        json: bool,
     },
     ///Run the executable from the package specified
     Run { package: String },
