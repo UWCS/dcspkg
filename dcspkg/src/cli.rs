@@ -58,7 +58,7 @@ impl Command {
             Run { package } => {
                 let package_data = get_registry(&config.registry.registry_file)?
                     .into_iter()
-                    .find(|pkg| pkg.name == *package)
+                    .find(|pkg| pkg.name == *package || pkg.id.to_string() == *package)
                     .context(format!(
                         "Could not find a package with the name {} in {:?}",
                         package, config.registry.registry_file
