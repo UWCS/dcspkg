@@ -5,10 +5,16 @@ services:
     ports:
       - "8000:8123"
     volumes:
-      - type: bind
-        source: ./packages
+      - type: volume
+        source: dcspkg
         target: /mnt/packages
+        volume:
+          nocopy: true
     environment:
       - PACKAGE_PATH=/mnt/packages/packages
       - ROCKET_ADDRESS=0.0.0.0
       - ROCKET_DATABASES={packagedb={url=/mnt/packages/packagedb.sqlite}}
+
+volumes:
+  dcspkg:
+    external: true
