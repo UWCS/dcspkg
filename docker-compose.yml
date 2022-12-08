@@ -1,6 +1,7 @@
 version: "3.9"
 services:
   server:
+    network_mode: bridge
     build: .
     ports:
       - "8123:8123"
