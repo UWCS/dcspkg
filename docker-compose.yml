@@ -6,16 +6,13 @@ services:
     ports:
       - "8123:8123"
     volumes:
-      - type: volume
-        source: dcspkg
+      - type: bind
+        source: /home/uwucs/packages
         target: /mnt/packages
         volume:
           nocopy: true
     environment:
       - PACKAGE_PATH=/mnt/packages/packages
+      - PACKAGE_PATH/mnt/packages/packagedb.sqlite
       - ROCKET_ADDRESS=0.0.0.0
-      - ROCKET_DATABASES={packagedb={url=/mnt/packages/packagedb.sqlite}}
-
-volumes:
-  dcspkg:
-    external: true
+      - ROCKET_PORT=8123
