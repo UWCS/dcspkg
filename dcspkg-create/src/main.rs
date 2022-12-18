@@ -1,5 +1,5 @@
 use clap::Parser;
-use dcspkg_server::Package;
+use dcspkg::Package;
 use std::io::Write;
 use std::path::PathBuf;
 mod archive;

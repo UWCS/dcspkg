@@ -1,2 +1,4 @@
-pub mod install;
-pub mod list;
+mod install;
+mod list;
+
+pub use {install::install, list::list};

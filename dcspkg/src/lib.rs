@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 ///
 /// [`sqlx::FromRow`][sqlx::FromRow] is derived, so this should match the database schema
 /// as specified in `scripts/init_db.py`.
-#[derive(Deserialize, Default, Serialize, Clone, Debug, PartialEq, Eq, sqlx::FromRow)]
+#[derive(Deserialize, Default, Serialize, Clone, Debug, PartialEq, Eq)]
 pub struct Package {
     /// The package's name, ie "gcc"
     /// This is the primary key
@@ -12,7 +12,6 @@ pub struct Package {
     /// The game/app's full name/title, ie "The GNU Compiler Collection, Version 4.3"
     pub fullname: String,
     /// A short description of the package
-    #[sqlx(default)]
     pub description: Option<String>,
     /// A URL pointing to an image for the package
     pub image_url: Option<String>,

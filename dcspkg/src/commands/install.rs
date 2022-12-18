@@ -1,6 +1,6 @@
 use anyhow::{anyhow, bail, Context, Result};
 use bytes::Buf;
-use dcspkg_common::Package;
+use dcspkg::Package;
 use flate2::{read::GzDecoder, CrcReader};
 use reqwest::blocking::get;
 use reqwest::{StatusCode, Url};
@@ -32,11 +32,11 @@ pub fn install<P: AsRef<Path>>(
         get_pkg_data(pkg_name, &server_url).context("Could not get package data from server")?;
 
     //create the install directory
-    fs::create_dir_all(&package_dir).context("Could not create install directory for package")?;
+    fs::create_dir_all(package_dir).context("Could not create install directory for package")?;
 
-    let install_dir = package_dir.join(&pkg.name);
+    let install_dir = package_dir.join(&pkg.pkgname);
     //download, checksum, and decompress into PKGDIR/bin
-    download_install_file(&pkg.archive_path, pkg.crc, &server_url, &install_dir)
+    download_install_file(&pkg.pkgname, pkg.crc, &server_url, &install_dir)
         .context("Could not install file")?;
 
     //run install.sh if exists

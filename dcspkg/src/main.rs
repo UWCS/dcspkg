@@ -2,6 +2,7 @@ use clap::Parser;
 use env_logger::Env;
 
 mod cli;
+mod commands;
 mod config;
 mod util;
 
@@ -22,3 +23,7 @@ fn main() -> anyhow::Result<()> {
 
     cli.command.run(crate::config::DcspkgConfig::get()?)
 }
+
+const DATA_ENDPOINT: &str = "/pkgdata";
+const FILE_ENDPOINT: &str = "/download";
+const LIST_ENDPOINT: &str = "/list";

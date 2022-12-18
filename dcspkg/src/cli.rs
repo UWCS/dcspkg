@@ -1,10 +1,13 @@
+use crate::commands::*;
 use crate::config::DcspkgConfig;
 use crate::util::print_package_list;
 use anyhow::Context;
 use clap::{Parser, Subcommand};
-use dcspkg_client::Package;
+use dcspkg::Package;
 use std::os::unix::process::CommandExt;
 use std::path::Path;
+
+//clap stuff
 
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
@@ -36,35 +39,42 @@ pub enum Command {
     Run { package: String },
 }
 
+//where the cli opts are dispatched to functions
 impl Command {
     pub fn run(&self, config: DcspkgConfig) -> anyhow::Result<()> {
         use Command::*;
         match &self {
+            //list all the packages to stdout
             List { json } => {
-                let packages = dcspkg_client::list(config.server.url)?;
+                let packages = list(config.server.url)?;
                 print_package_list(&packages, *json).context("Cannot format package list")
             }
-            Install { package } => dcspkg_client::install(
+            //install a package
+            Install { package } => install(
                 package,
                 config.server.url,
                 config.registry.install_dir,
                 config.registry.bin_dir,
                 config.registry.registry_file,
             ),
+
+            //list what we have installed
             Installed { json } => {
-                let packages = &get_registry(&config.registry.registry_file)?;
-                print_package_list(packages, *json).context("Cannot format package list")
+                let packages = get_registry(&config.registry.registry_file)?;
+                print_package_list(&packages, *json).context("Cannot format package list")
             }
+
+            //run an executable from a package
             Run { package } => {
                 let package_data = get_registry(&config.registry.registry_file)?
                     .into_iter()
-                    .find(|pkg| pkg.name == *package || pkg.id.to_string() == *package)
+                    .find(|pkg| pkg.pkgname == *package)
                     .context(format!(
                         "Could not find a package with the name {} in {:?}",
                         package, config.registry.registry_file
                     ))?;
 
-                let exe_path = config.registry.install_dir.join(package_data.name).join(
+                let exe_path = config.registry.install_dir.join(package_data.pkgname).join(
                     package_data
                         .executable_path
                         .context("No executable exists for this package")?,
@@ -77,6 +87,7 @@ impl Command {
     }
 }
 
+/// Helper to get the list of packages from the json file on disk
 fn get_registry(path: &Path) -> anyhow::Result<Vec<Package>> {
     std::fs::File::open(path)
         .context("Could not find registry file")

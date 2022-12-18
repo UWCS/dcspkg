@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Context, Result};
-use dcspkg_server::Package;
+use dcspkg::Package;
 use sqlx::{
     sqlite::{self, SqliteConnection},
     Connection,
