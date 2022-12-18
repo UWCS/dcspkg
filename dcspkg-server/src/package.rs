@@ -8,7 +8,7 @@ use serde::{Deserialize, Serialize};
 pub struct Package {
     /// The package's name, ie "gcc"
     /// This is the primary key
-    pub name: String,
+    pub pkgname: String,
     /// The game/app's full name/title, ie "The GNU Compiler Collection, Version 4.3"
     pub fullname: String,
     /// A short description of the package
@@ -16,8 +16,6 @@ pub struct Package {
     pub description: Option<String>,
     /// A URL pointing to an image for the package
     pub image_url: Option<String>,
-    /// The path to the package tarball on disk
-    pub archive_path: String,
     /// The relative path of the executable within the tarball
     pub executable_path: Option<String>,
     /// The package's CRC checksum

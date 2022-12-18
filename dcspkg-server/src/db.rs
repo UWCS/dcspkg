@@ -4,7 +4,7 @@ pub async fn get_package_by_name(
     conn: &sqlx::SqlitePool,
     name: &str,
 ) -> Result<Option<Package>, sqlx::Error> {
-    sqlx::query_as("SELECT * FROM packages WHERE name=?")
+    sqlx::query_as("SELECT * FROM packages WHERE pkgname=?")
         .bind(name)
         .fetch_optional(conn)
         .await
