@@ -19,5 +19,4 @@ clap = { version = "3.2.20", features = ["derive", "cargo"] }
 dialoguer = "0.10.2"
 semver = "1.0.13"
 url = "2.3.0"
-dcspkg_common = { path = "../dcspkg-common" }
 sqlx = { version = "0.6.1", features = ["sqlite", "runtime-async-std-rustls"] }

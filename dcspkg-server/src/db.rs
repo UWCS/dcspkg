@@ -1,40 +1,16 @@
-use dcspkg_common::Package;
-use rocket_db_pools::Database;
-use sqlx::{self, pool::PoolConnection, Sqlite};
-
-#[derive(Database)]
-#[database("packagedb")]
-pub struct PackageDB(rocket_db_pools::sqlx::SqlitePool);
+use crate::Package;
 
 pub async fn get_package_by_name(
-    conn: &mut PoolConnection<Sqlite>,
+    conn: &sqlx::SqlitePool,
     name: &str,
 ) -> Result<Option<Package>, sqlx::Error> {
-    let mut all: Vec<Package> = sqlx::query_as("SELECT * FROM packages WHERE name=?")
+    sqlx::query_as("SELECT * FROM packages WHERE name=?")
         .bind(name)
-        .fetch_all(conn)
-        .await?;
-    //get latest version
-    all.sort_by_key(|p| semver::Version::parse(&p.version).unwrap());
-    Ok(all.pop())
+        .fetch_optional(conn)
+        .await
 }
 
-pub async fn get_package_by_id(
-    conn: &mut PoolConnection<Sqlite>,
-    id: i64,
-) -> Result<Option<Package>, sqlx::Error> {
-    let mut all: Vec<Package> = sqlx::query_as("SELECT * FROM packages WHERE id=?")
-        .bind(id)
-        .fetch_all(conn)
-        .await?;
-    //get latest version
-    all.sort_by_key(|p| semver::Version::parse(&p.version).unwrap());
-    Ok(all.pop())
-}
-
-pub async fn get_all_packages(
-    conn: &mut PoolConnection<Sqlite>,
-) -> Result<Vec<Package>, sqlx::Error> {
+pub async fn get_all_packages(conn: &sqlx::SqlitePool) -> Result<Vec<Package>, sqlx::Error> {
     sqlx::query_as("SELECT * FROM packages")
         .fetch_all(conn)
         .await
