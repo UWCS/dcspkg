@@ -1,4 +1,4 @@
-use crate::Package;
+use dcspkg_server::Package;
 
 pub async fn get_package_by_name(
     conn: &sqlx::SqlitePool,

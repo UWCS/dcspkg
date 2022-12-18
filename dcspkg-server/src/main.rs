@@ -3,22 +3,24 @@ use rocket::routes;
 
 mod db;
 mod handlers;
-mod package;
-pub use package::Package;
 
 #[rocket::main]
 async fn main() -> anyhow::Result<()> {
     let package_path =
         std::env::var("PACKAGE_PATH").unwrap_or_else(|_| "./packages/packages".to_owned());
 
-    let db = sqlx::SqlitePool::connect("").await?;
+    let db = {
+        let path =
+            std::env::var("DB_PATH").unwrap_or_else(|_| "./packages/packagedb.sqlite".to_owned());
+        sqlx::SqlitePool::connect(&path).await?
+    };
 
-    let _rocket = rocket::build()
+    rocket::build()
         .manage(db)
         .mount("/", routes![list, pkgdata])
         .mount("/download", rocket::fs::FileServer::from(package_path))
         .launch()
-        .await?;
-
-    Ok(())
+        .await
+        .map(|_| ())
+        .map_err(Into::into)
 }

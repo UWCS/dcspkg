@@ -1,5 +1,5 @@
-use super::Package;
 use crate::db::{get_all_packages, get_package_by_name};
+use dcspkg_server::Package;
 use rocket::serde::json::Json;
 use rocket::{get, State};
 
