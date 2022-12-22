@@ -45,7 +45,8 @@ impl Command {
             //list all the packages to stdout
             List { json } => {
                 let packages = list(config.server.url)?;
-                print_package_list(&packages, *json).context("Cannot format package list")
+                print_package_list(&packages, *json);
+                Ok(())
             }
             //install a package
             Install { package } => install(
@@ -59,7 +60,8 @@ impl Command {
             //list what we have installed
             Installed { json } => {
                 let packages = get_registry(&config.registry.registry_file)?;
-                print_package_list(&packages, *json).context("Cannot format package list")
+                print_package_list(&packages, *json);
+                Ok(())
             }
 
             //run an executable from a package
