@@ -7,7 +7,7 @@ WORKDIR /dcspkg-server
 # copy package manifest in 
 COPY ./dcspkg-server/Cargo.toml ./Cargo.toml
 
-# path the package manifest to fetch dcspkg lib from crates.io
+# path the package manifest to fetch dcspkg lib from github
 RUN sed -i 's@{ path = "../dcspkg" }@{ git = "https://github.com/UWCS/dcspkg" }@g' Cargo.toml
 
 # build only dependancies to cache them
