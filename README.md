@@ -1,7 +1,7 @@
 # dcspkg
 
 [![](https://img.shields.io/crates/v/dcspkg)](https://crates.io/crates/dcspkg)
-[![GitHub branch checks state](https://img.shields.io/github/checks-status/uwcs/dcspkg/main)](https://github.com/UWCS/dcspkg/actions)
+[![GitHub Workflow Status (with branch)](https://img.shields.io/github/actions/workflow/status/UWCS/dcspkg/ci.yml?branch=main)](https://github.com/UWCS/dcspkg/actions)
 
 `dcspkg` is a simple package manager, designed for used on DCS systems, or any system where packages cannot be installed as root. It fetches packages containing precompiled binaries from a server, and then installs them under your home directory.
 
