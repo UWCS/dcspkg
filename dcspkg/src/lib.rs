@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 /// Represents a package, and contains all the metadata assoicated with it.
-///
-/// [`sqlx::FromRow`][sqlx::FromRow] is derived, so this should match the database schema
-/// as specified in `scripts/init_db.py`.
 #[derive(Deserialize, Default, Serialize, Clone, Debug, PartialEq, Eq)]
 pub struct Package {
     /// The package's name, ie "gcc"
