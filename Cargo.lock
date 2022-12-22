@@ -578,7 +578,7 @@ dependencies = [
 
 [[package]]
 name = "dcspkg"
-version = "0.1.2"
+version = "0.2.0-rc.1"
 dependencies = [
  "anyhow",
  "bytes",
@@ -600,7 +600,7 @@ dependencies = [
 
 [[package]]
 name = "dcspkg_create"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "clap",
@@ -617,7 +617,7 @@ dependencies = [
 
 [[package]]
 name = "dcspkg_server"
-version = "0.1.0"
+version = "0.2.0-rc.1"
 dependencies = [
  "anyhow",
  "dcspkg",
