@@ -1,6 +1,10 @@
+use anyhow::Context;
+use std::path::Path;
+
 use dcspkg::Package;
 use tabular::{Row, Table};
 
+///helper to print a list of packages as a nice table
 pub fn print_package_list(list: &[Package], raw: bool) -> Option<()> {
     if raw {
         println!("{}", serde_json::to_string(list).unwrap());
@@ -23,4 +27,13 @@ pub fn print_package_list(list: &[Package], raw: bool) -> Option<()> {
         println!("{table}");
     }
     Some(())
+}
+
+/// Helper to get the list of packages from the json file on disk
+pub fn get_registry(path: &Path) -> anyhow::Result<Vec<Package>> {
+    std::fs::File::open(path)
+        .context("Could not open registry file")
+        .and_then(|reader| {
+            serde_json::from_reader(reader).context("Could not parse JSON from registry")
+        })
 }

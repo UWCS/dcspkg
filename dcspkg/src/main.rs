@@ -1,3 +1,4 @@
+use anyhow::Context;
 use clap::Parser;
 use env_logger::Env;
 
@@ -19,9 +20,15 @@ fn main() -> anyhow::Result<()> {
 
     env_logger::Builder::from_env(Env::default().default_filter_or(log_level)).init();
 
-    std::fs::create_dir_all(&*crate::config::DCSPKG_DIR)?;
+    //load the application config
+    let config = crate::config::DcspkgConfig::get()?;
 
-    cli.command.run(crate::config::DcspkgConfig::get()?)
+    //create the dcspkg directory and registry file
+    std::fs::create_dir_all(&*crate::config::DCSPKG_DIR)?;
+    std::fs::write(&config.registry.registry_file, "[]")
+        .context("Could not create empty package registry file")?;
+
+    cli.command.run(config)
 }
 
 const DATA_ENDPOINT: &str = "/pkgdata";

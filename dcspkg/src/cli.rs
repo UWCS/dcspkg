@@ -1,11 +1,9 @@
 use crate::commands::*;
 use crate::config::DcspkgConfig;
-use crate::util::print_package_list;
+use crate::util::*;
 use anyhow::Context;
 use clap::{Parser, Subcommand};
-use dcspkg::Package;
 use std::os::unix::process::CommandExt;
-use std::path::Path;
 
 //clap stuff
 
@@ -85,13 +83,4 @@ impl Command {
             }
         }
     }
-}
-
-/// Helper to get the list of packages from the json file on disk
-fn get_registry(path: &Path) -> anyhow::Result<Vec<Package>> {
-    std::fs::File::open(path)
-        .context("Could not find registry file")
-        .and_then(|reader| {
-            serde_json::from_reader(reader).context("Could not parse JSON from registry")
-        })
 }
