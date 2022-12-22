@@ -11,6 +11,7 @@ pub fn print_package_list(list: &[Package], raw: bool) {
     } else {
         if list.is_empty() {
             println!("Package list is empty!");
+            return;
         }
         let mut table = Table::new("{:<}  {:<}  {:<}").with_row(
             Row::new()
