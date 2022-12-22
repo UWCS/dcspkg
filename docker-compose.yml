@@ -8,8 +8,6 @@ services:
       - type: bind
         source: /home/uwucs/packages
         target: /mnt/packages
-        volume:
-          nocopy: true
     environment:
       - PACKAGE_PATH=/mnt/packages/packages
       - DB_PATH=/mnt/packages/packagedb.sqlite
