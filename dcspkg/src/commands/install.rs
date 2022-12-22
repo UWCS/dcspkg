@@ -14,11 +14,11 @@ use std::{
 use tar::Archive;
 
 pub fn install<P: AsRef<Path>>(
-    pkg_name: &str,
-    server_url: impl reqwest::IntoUrl,
-    package_dir: P,
-    bin_dir: P,
-    registry_file: P,
+    pkg_name: &str,                    //the packages pkgname
+    server_url: impl reqwest::IntoUrl, //the url of the server, from config
+    package_dir: P,                    //the local package install dir, from config
+    bin_dir: P,                        //the local bin install dir, from config
+    registry_file: P,                  //the local json registry file, from config
 ) -> Result<()> {
     let server_url = server_url
         .into_url()
@@ -34,9 +34,9 @@ pub fn install<P: AsRef<Path>>(
     //create the install directory
     fs::create_dir_all(package_dir).context("Could not create install directory for package")?;
 
-    let install_dir = package_dir.join(&pkg.pkgname);
+    let install_dir = package_dir.join(pkg_name);
     //download, checksum, and decompress into PKGDIR/bin
-    download_install_file(&pkg.pkgname, pkg.crc, &server_url, &install_dir)
+    download_install_file(pkg_name, pkg.crc, &server_url, &install_dir)
         .context("Could not install file")?;
 
     //run install.sh if exists
@@ -98,16 +98,16 @@ fn get_pkg_data(pkg_name: &str, server_url: &Url) -> Result<Package> {
 }
 
 fn download_install_file(
-    pkg_url: &str,
+    pkg_name: &str,
     checksum: u32,
     server_url: &Url,
     install_dir: &Path,
 ) -> Result<()> {
     let url = server_url
-        .join(format!("{}/{}", crate::FILE_ENDPOINT, pkg_url).as_ref())
+        .join(format!("{}/{}.dcspkg", crate::FILE_ENDPOINT, pkg_name).as_ref())
         .context("Could not parse URL")?;
 
-    log::info!("Downloading compressed package {pkg_url} from {url}...");
+    log::info!("Downloading compressed package {pkg_name} from {url}...");
 
     let response = get(url.as_ref()).context("Request failed")?;
     log::info!("Got reponse from {url}");
@@ -116,7 +116,7 @@ fn download_install_file(
         bail!(
             "Response was not okay (got code {} when requesting {})",
             response.status().as_u16(),
-            pkg_url
+            url
         )
     }
 
@@ -124,8 +124,6 @@ fn download_install_file(
     let compressed = response
         .bytes()
         .context("Could not get content of response")?;
-
-    //check the crc value is correct
 
     log::info!("Decompressing and unpacking package...");
 
