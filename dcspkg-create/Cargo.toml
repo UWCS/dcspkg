@@ -1,6 +1,6 @@
 [package]
 name = "dcspkg_create"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["Joey Harrison <joeyh021@icloud.com>"]
 rust-version = "1.62"
@@ -15,9 +15,9 @@ smol = "1.2.5"
 tar = "0.4.38"
 anyhow = "1"
 flate2 = "1.0.24"
-clap = { version = "3.2.20", features = ["derive", "cargo"] }
+clap = { version = "4.0.29", features = ["derive", "cargo"] }
 dialoguer = "0.10.2"
 semver = "1.0.13"
 url = "2.3.0"
-dcspkg_common = { path = "../dcspkg-common" }
-sqlx = { version = "0.6.1", features = ["sqlite", "runtime-async-std-rustls"] }
+sqlx = { version = "0.6.2", features = ["sqlite", "runtime-async-std-rustls"] }
+dcspkg = { path = "../dcspkg" }

@@ -5,17 +5,26 @@ use std::path::Path;
 pub fn get_pkg_name(default: Option<&str>) -> Result<String> {
     if let Some(default) = default {
         Input::with_theme(&ColorfulTheme::default())
-            .with_prompt("Enter package name")
+            .with_prompt("Enter package short name")
             .default(default.to_string())
             .show_default(true)
             .interact_text()
     } else {
         Input::with_theme(&ColorfulTheme::default())
-            .with_prompt("Enter package name")
+            .with_prompt("Enter package short name")
             .show_default(true)
             .interact_text()
     }
     .context("Could not get package name")
+}
+
+pub fn get_full_name(default: &str) -> Result<String> {
+    Input::with_theme(&ColorfulTheme::default())
+        .with_prompt("Enter full application name or game title")
+        .default(default.to_string())
+        .show_default(true)
+        .interact_text()
+        .context("Could not get package fullname")
 }
 
 pub fn get_description() -> Result<Option<String>> {
@@ -25,15 +34,6 @@ pub fn get_description() -> Result<Option<String>> {
         .interact_text()
         .map(|input| if input.is_empty() { None } else { Some(input) })
         .context("Could not get description")
-}
-
-pub fn get_version() -> Result<String> {
-    Input::with_theme(&ColorfulTheme::default())
-        .with_prompt("Enter version")
-        .default("0.1.0".to_owned())
-        .validate_with(|input: &String| semver::Version::parse(input).map(|_| ()))
-        .interact_text()
-        .context("Could not get version")
 }
 
 pub fn get_image_url() -> Result<Option<String>> {

@@ -1,5 +1,5 @@
 use anyhow::{bail, Context, Result};
-use dcspkg_common::Package;
+use dcspkg::Package;
 use reqwest::{blocking::get, IntoUrl, StatusCode};
 
 pub fn list<U: IntoUrl>(url: U) -> Result<Vec<Package>> {

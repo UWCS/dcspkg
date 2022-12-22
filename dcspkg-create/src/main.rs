@@ -1,7 +1,7 @@
 use clap::Parser;
-use dcspkg_common::Package;
+use dcspkg::Package;
 use std::io::Write;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 mod archive;
 mod db;
 mod opts;
@@ -12,43 +12,40 @@ fn main() -> anyhow::Result<()> {
     println!("Creating new dcspkg from {directory:?}");
     println!("Please specify package options (skip to use defaults)");
 
-    let pkg_name = opts::get_pkg_name(directory.file_name().and_then(|s| s.to_str()))?;
-    let version = opts::get_version()?;
+    let pkgname = opts::get_pkg_name(directory.file_name().and_then(|s| s.to_str()))?;
 
-    db::validate_name_and_version(&args.db, &pkg_name, &version)?;
+    db::check_name_unique(&args.db, &pkgname)?;
 
+    let fullname = opts::get_full_name(&pkgname)?;
     let description = opts::get_description()?;
     let image_url = opts::get_image_url()?;
     let executable_path = opts::get_exe_path(&directory)?;
     let add_to_path = opts::add_to_path()?;
     let has_installer = opts::has_installer(&directory)?;
-    let archive_name = format!("{pkg_name}-{version}.dcspkg");
 
     print!("Creating tarball...");
     std::io::stdout().flush()?; //print with no newline so force a flush
 
-    let archive_path = args.pkg_dir.join(&archive_name);
+    let archive_path = args.pkg_dir.join(format!("{pkgname}.dcspkg"));
 
     let crc = archive::make_archive(&archive_path, &directory)?;
 
     println!("done!");
 
-    let mut package = Package {
-        id: 0,
-        name: pkg_name,
+    let package = Package {
+        pkgname,
         description,
-        version,
         image_url,
-        archive_path: archive_name,
         executable_path,
         crc,
         has_installer,
         add_to_path,
+        fullname,
     };
 
-    db::add_package_to_db(&args.db, &mut package)?;
-
     println!("{}", serde_json::to_string_pretty(&package)?);
+
+    db::add_package_to_db(&args.db, package)?;
 
     println!("Added package to database");
     println!("Your package is now ready for download!");
@@ -59,26 +56,30 @@ fn main() -> anyhow::Result<()> {
 #[clap(author, version, about, long_about = None)]
 struct Cli {
     /// The directory to package up
-    #[clap(validator = dir_exists)]
+    #[arg(value_parser = dir_exists)]
     directory: PathBuf,
-    #[clap(short, long, value_parser, validator=file_exists)]
-    #[clap(default_value = "packages/packagedb.sqlite")]
+    #[arg(short, long, value_parser, value_parser=file_exists)]
+    #[arg(default_value = "packages/packagedb.sqlite")]
     db: PathBuf,
-    #[clap(short, long, value_parser, validator=dir_exists)]
-    #[clap(default_value = "packages/packages")]
+    #[arg(short, long, value_parser, value_parser=dir_exists)]
+    #[arg(default_value = "packages/packages")]
     pkg_dir: PathBuf,
 }
 
-fn dir_exists(f: &str) -> Result<(), &'static str> {
-    Path::new(f)
-        .is_dir()
-        .then_some(())
-        .ok_or("Directory does not exist")
+fn dir_exists(f: &str) -> Result<PathBuf, &'static str> {
+    let path = PathBuf::from(f);
+    if !path.is_dir() {
+        Err("Directory does not exist")
+    } else {
+        Ok(path)
+    }
 }
 
-fn file_exists(f: &str) -> Result<(), &'static str> {
-    Path::new(f)
-        .is_file()
-        .then_some(())
-        .ok_or("File does not exist")
+fn file_exists(f: &str) -> Result<PathBuf, &'static str> {
+    let path = PathBuf::from(f);
+    if !path.is_file() {
+        Err("File does not exist")
+    } else {
+        Ok(path)
+    }
 }
