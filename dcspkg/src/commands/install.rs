@@ -114,8 +114,9 @@ fn download_install_file(
 
     if response.status() != StatusCode::OK {
         bail!(
-            "Response was not okay (got code {})",
-            response.status().as_u16()
+            "Response was not okay (got code {} when requesting {})",
+            response.status().as_u16(),
+            pkg_url
         )
     }
 
