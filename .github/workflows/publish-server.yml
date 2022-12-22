@@ -2,7 +2,7 @@ on:
   push:
   
 jobs:
-    build-and-publish-latest:
+    build-and-publish-server:
         runs-on: ubuntu-latest
         if: github.ref == 'refs/heads/main' # Running this job only for master branch
 
