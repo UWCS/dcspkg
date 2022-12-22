@@ -3,11 +3,11 @@ name: Release dcspkg CLI
 on:
   push:
     tags:
-      - "cli-v*"
+      - "v*"
 
 jobs:
   tagged-release:
-    name: "Release dcspkg CLI"
+    name: "release"
     runs-on: "ubuntu-latest"
 
     steps:
