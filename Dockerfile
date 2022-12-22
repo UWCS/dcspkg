@@ -6,8 +6,9 @@ WORKDIR /dcspkg-server
 
 # copy package manifest in 
 COPY ./dcspkg-server/Cargo.toml ./Cargo.toml
-# path the package manifest to fetch dcspkg-common from github
-RUN sed -i 's@{ path = "../dcspkg-common" }@{ git = "https://github.com/UWCS/dcspkg" }@g' Cargo.toml
+
+# path the package manifest to fetch dcspkg lib from crates.io
+RUN sed -i 's@{ path = "../dcspkg" }@{ git = "https://github.com/UWCS/dcspkg" }@g' Cargo.toml
 
 # build only dependancies to cache them
 RUN cargo build --release
