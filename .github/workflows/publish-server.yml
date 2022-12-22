@@ -16,5 +16,5 @@ jobs:
       - name: Build and publish a Docker image for dcspkg server
         uses: macbre/push-to-ghcr@v12
         with:
-          image_name: dcspkg-server
+          image_name: uwcs/dcspkg-server
           github_token: ${{ secrets.GITHUB_TOKEN }}
