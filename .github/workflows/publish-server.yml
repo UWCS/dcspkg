@@ -1,17 +1,20 @@
+name: Build and publish a Docker image to ghcr.io
 on:
+  # publish on pushes to the main branch (image tagged as "latest")
   push:
-  
+    branches:
+      - master
+
 jobs:
-    build-and-publish-server:
-        runs-on: ubuntu-latest
-        if: github.ref == 'refs/heads/main' # Running this job only for master branch
+  docker_publish:
+    runs-on: "ubuntu-latest"
 
-        steps:
-            - uses: actions/checkout@v2 # Checking out the repo
+    steps:
+      - uses: actions/checkout@v2
 
-            - name: Build and Publish latest Docker image
-              uses: VaultVulp/gp-docker-action@1.1.12
-              with:
-                  github-token: ${{ secrets.GITHUB_TOKEN }} # Provide GITHUB_TOKEN to login into the GitHub Packages
-                  image-name: dcspkg-server # Provide only Docker image name, tag will be automatically set to latest
-                  dockerfile: Dockerfile
+      # https://github.com/marketplace/actions/push-to-ghcr
+      - name: Build and publish a Docker image for dcspkg server
+        uses: macbre/push-to-ghcr@v12
+        with:
+          image_name: dcspkg-server
+          github_token: ${{ secrets.GITHUB_TOKEN }}
