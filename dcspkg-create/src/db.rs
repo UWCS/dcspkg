@@ -34,7 +34,7 @@ async fn async_check_name_unique(db_path: &Path, pkg_name: &str) -> Result<()> {
 async fn async_add_package_to_db(db_path: &Path, package: Package) -> Result<()> {
     let mut connection = connect(db_path).await?;
     sqlx::query(
-        "INSERT INTO packages (pkgname, fullname, description, image_url, executable_path, crc, has_installer, add_to_path) VALUES (?,?,?,?,?,?,?,?,?)")
+        "INSERT INTO packages (pkgname, fullname, description, image_url, executable_path, crc, has_installer, add_to_path) VALUES (?,?,?,?,?,?,?,?)")
         .bind(&package.pkgname)
         .bind(&package.fullname)
         .bind(&package.description)
