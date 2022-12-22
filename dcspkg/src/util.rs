@@ -5,14 +5,17 @@ use dcspkg::Package;
 use tabular::{Row, Table};
 
 ///helper to print a list of packages as a nice table
-pub fn print_package_list(list: &[Package], raw: bool) -> Option<()> {
+pub fn print_package_list(list: &[Package], raw: bool) {
     if raw {
         println!("{}", serde_json::to_string(list).unwrap());
     } else {
+        if list.is_empty() {
+            println!("Package list is empty!");
+        }
         let mut table = Table::new("{:<}  {:<}  {:<}").with_row(
             Row::new()
                 .with_cell("Game/App Name")
-                .with_cell("Package Shortnam")
+                .with_cell("Package Shortname")
                 .with_cell("Description"),
         );
         for pkg in list {
@@ -26,7 +29,6 @@ pub fn print_package_list(list: &[Package], raw: bool) -> Option<()> {
 
         println!("{table}");
     }
-    Some(())
 }
 
 /// Helper to get the list of packages from the json file on disk
