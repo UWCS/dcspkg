@@ -77,7 +77,7 @@ impl DcspkgConfig {
 fn create_default_config_file(path: &Path) -> anyhow::Result<()> {
     let default_contents = toml::to_string_pretty(&DcspkgConfig::default())
         .context("Error in serializing default config struct")?;
-    let result = std::fs::write(path, default_contents).context("Could not write to file");
+    std::fs::write(path, default_contents).context("Could not write to file")?;
     log::info!("Created new config file from defaults");
-    result
+    Ok(())
 }
