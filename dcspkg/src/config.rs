@@ -1,4 +1,3 @@
-//! this should eventually be replaced with some proper config struct read from a file somwhere
 use anyhow::Context;
 use config::{Config, Environment, File};
 use home::home_dir;
