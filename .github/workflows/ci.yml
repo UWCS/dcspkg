@@ -2,11 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
 
 env:
   CARGO_TERM_COLOR: always
@@ -64,7 +59,7 @@ jobs:
     needs:
       - lint
       - test
-    if: ${{ success() }} && github.ref == 'refs/heads/main' && contains(github.ref, '/tags/v')))
+    if: success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
     steps:
       - uses: actions/checkout@v2
       - uses: katyo/publish-crates@v1
