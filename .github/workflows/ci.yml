@@ -1,7 +1,8 @@
-name: Test
+name: CI
 
 on:
   push:
+  
 
 env:
   CARGO_TERM_COLOR: always
@@ -9,14 +10,83 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    name: Build
     steps:
-      - uses: actions/checkout@v2
-      - name: Build
+      - uses: actions/checkout@v3
+      
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          
+      - name: Check that lockfile is up to date
+        run: cargo update --locked
+      - name: Check code builds without warnings
         run: cargo check --verbose --workspace
-      - name: Run tests
-        run: cargo test --verbose
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint
+    needs: build
+    if: ${{ success() }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          save-if: false
       - name: Run clippy
         run: cargo clippy --verbose --workspace
       - name: Check formatting
         run: cargo fmt --check --verbose
+
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    needs: build
+    if: ${{ success() }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          save-if: false
+      - name: Run Cargo tests
+        run: cargo test --verbose
+
+  docker_publish:
+    runs-on: ubuntu-latest
+    name: Publish built container
+    needs:
+      - lint
+      - test
+    if: success() && github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v3
+      # https://github.com/marketplace/actions/push-to-ghcr
+      - name: Build and publish a Docker image for dcspkg server
+        uses: macbre/push-to-ghcr@v12
+        with:
+          image_name: uwcs/dcspkg-server
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+  cli_release:
+    runs-on: ubuntu-latest
+    name: Release CLI to crates.io
+    needs:
+      - lint
+      - test
+    if: success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          save-if: false
+      - uses: katyo/publish-crates@v1
+        with:
+          path: "./dcspkg"
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
