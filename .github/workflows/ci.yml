@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     name: Build
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - name: Check that lockfile is up to date
+        run: cargo update --locked
       - name: Check code builds without warnings
         run: cargo check --verbose --workspace
 
