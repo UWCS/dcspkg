@@ -2,6 +2,7 @@ name: CI
 
 on:
   push:
+  
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,6 +13,11 @@ jobs:
     name: Build
     steps:
       - uses: actions/checkout@v3
+      
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          
       - name: Check that lockfile is up to date
         run: cargo update --locked
       - name: Check code builds without warnings
@@ -23,7 +29,11 @@ jobs:
     needs: build
     if: ${{ success() }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          save-if: false
       - name: Run clippy
         run: cargo clippy --verbose --workspace
       - name: Check formatting
@@ -35,7 +45,11 @@ jobs:
     needs: build
     if: ${{ success() }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          save-if: false
       - name: Run Cargo tests
         run: cargo test --verbose
 
@@ -47,7 +61,7 @@ jobs:
       - test
     if: success() && github.ref_name == 'main'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       # https://github.com/marketplace/actions/push-to-ghcr
       - name: Build and publish a Docker image for dcspkg server
         uses: macbre/push-to-ghcr@v12
@@ -63,7 +77,11 @@ jobs:
       - test
     if: success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+        with: 
+          shared-key: ci-build
+          save-if: false
       - uses: katyo/publish-crates@v1
         with:
           path: "./dcspkg"
