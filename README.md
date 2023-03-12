@@ -13,7 +13,7 @@ This repo is a cargo workspace containing three crates:
 - `dcspkg_server`, the package server
 - `dcspkg_create`, a helper tool for creating `.dcspkg` archives
 
-See [docs.md](docs.md) for full documentation
+See the tech team wiki page for full documentation: https://techteam.uwcs.co.uk/en/apps/dcspkg
 
 ## Contributing
 
