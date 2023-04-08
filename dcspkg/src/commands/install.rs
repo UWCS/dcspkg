@@ -1,6 +1,6 @@
 use anyhow::{anyhow, bail, Context, Result};
 use bytes::Buf;
-use dcspkg::Package;
+use crate::Package;
 use flate2::{read::GzDecoder, CrcReader};
 use reqwest::blocking::get;
 use reqwest::{StatusCode, Url};

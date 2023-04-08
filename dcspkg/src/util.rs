@@ -1,8 +1,8 @@
 use anyhow::Context;
 use std::path::Path;
-
-use dcspkg::Package;
 use tabular::{Row, Table};
+
+use crate::Package;
 
 ///helper to print a list of packages as a nice table
 pub fn print_package_list(list: &[Package], raw: bool) {

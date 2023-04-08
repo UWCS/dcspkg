@@ -1,9 +1,7 @@
-use crate::commands::*;
 use crate::config::DcspkgConfig;
 use crate::util::*;
-use anyhow::Context;
+use crate::*;
 use clap::{Parser, Subcommand};
-use std::os::unix::process::CommandExt;
 
 //clap stuff
 
@@ -44,45 +42,23 @@ impl Command {
         match &self {
             //list all the packages to stdout
             List { json } => {
-                let packages = list(config.server.url)?;
+                let packages = list_all_packages(config)?;
                 print_package_list(&packages, *json);
                 Ok(())
             }
+            
             //install a package
-            Install { package } => install(
-                package,
-                config.server.url,
-                config.registry.install_dir,
-                config.registry.bin_dir,
-                config.registry.registry_file,
-            ),
+            Install { package } => install_package(config, package),
 
             //list what we have installed
             Installed { json } => {
-                let packages = get_registry(&config.registry.registry_file)?;
+                let packages = list_installed_packages(config)?;
                 print_package_list(&packages, *json);
                 Ok(())
             }
 
             //run an executable from a package
-            Run { package } => {
-                let package_data = get_registry(&config.registry.registry_file)?
-                    .into_iter()
-                    .find(|pkg| pkg.pkgname == *package)
-                    .context(format!(
-                        "Could not find a package with the name {} in {:?}",
-                        package, config.registry.registry_file
-                    ))?;
-
-                let exe_path = config.registry.install_dir.join(package_data.pkgname).join(
-                    package_data
-                        .executable_path
-                        .context("No executable exists for this package")?,
-                );
-
-                //will only return if there is an error
-                Err(std::process::Command::new(exe_path).exec()).map_err(Into::into)
-            }
+            Run { package } => run_package(config, package)
         }
     }
 }
