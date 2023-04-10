@@ -1,6 +1,6 @@
 use crate::config::DcspkgConfig;
 use crate::util::*;
-use crate::*;
+use crate::{install_package, list_all_packages, list_installed_packages, run_package};
 use clap::{Parser, Subcommand};
 
 //clap stuff
@@ -42,23 +42,33 @@ impl Command {
         match &self {
             //list all the packages to stdout
             List { json } => {
-                let packages = list_all_packages(config)?;
+                let packages = list_all_packages(config.server.url)?;
                 print_package_list(&packages, *json);
                 Ok(())
             }
-            
+
             //install a package
-            Install { package } => install_package(config, package),
+            Install { package } => install_package(
+                config.server.url,
+                config.registry.install_dir,
+                config.registry.bin_dir,
+                config.registry.registry_file,
+                package,
+            ),
 
             //list what we have installed
             Installed { json } => {
-                let packages = list_installed_packages(config)?;
+                let packages = list_installed_packages(&config.registry.registry_file)?;
                 print_package_list(&packages, *json);
                 Ok(())
             }
 
             //run an executable from a package
-            Run { package } => run_package(config, package)
+            Run { package } => run_package(
+                &config.registry.registry_file,
+                config.registry.install_dir,
+                package,
+            ),
         }
     }
 }

@@ -3,6 +3,8 @@ use clap::Parser;
 use env_logger::Env;
 
 use dcspkg::*;
+mod cli;
+mod util;
 
 fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();

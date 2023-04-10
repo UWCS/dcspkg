@@ -1,13 +1,11 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 
-
-
-pub mod commands;
-pub mod cli;
+mod commands;
 pub mod config;
-pub mod util;
+mod util;
 
-use crate::config::DcspkgConfig;
 use crate::commands::*;
 use crate::util::*;
 
@@ -33,29 +31,37 @@ pub struct Package {
     pub add_to_path: bool,
 }
 
-// Simplify an API to expose here for when this crate
-// is used as a library. This also provides calls 
-// for cli.rs when used from main.rs.
-pub fn list_all_packages(config: DcspkgConfig) -> anyhow::Result<Vec<Package>> {
-    list(config.server.url)
+/// Returns a vector containing a list of packages that are available
+/// for installation from the dcspkg server.
+pub fn list_all_packages(server_url: String) -> anyhow::Result<Vec<Package>> {
+    list(server_url)
 }
 
-pub fn list_installed_packages(config: DcspkgConfig) -> anyhow::Result<Vec<Package>> {
-    get_registry(&config.registry.registry_file)
+/// Returns a vector containing a list of packages that are currently
+/// installed.
+pub fn list_installed_packages(registry_file: &PathBuf) -> anyhow::Result<Vec<Package>> {
+    get_registry(registry_file)
 }
 
-pub fn install_package(config: DcspkgConfig, package: &String) -> anyhow::Result<()> {
-    install(
-        package,
-        config.server.url,
-        config.registry.install_dir,
-        config.registry.bin_dir,
-        config.registry.registry_file,
-    )
+/// Installs the specified package locally.
+pub fn install_package(
+    server_url: String,
+    install_dir: PathBuf,
+    bin_dir: PathBuf,
+    registry_file: PathBuf,
+    package: &String,
+) -> anyhow::Result<()> {
+    install(package, server_url, install_dir, bin_dir, registry_file)
 }
 
-pub fn run_package(config: DcspkgConfig, package: &String) -> anyhow::Result<()> {
-    run(config, package)
+/// Launches the specified package. This exits the current process
+/// and launches the package in its place.
+pub fn run_package(
+    registry_file: &PathBuf,
+    install_dir: PathBuf,
+    package: &String,
+) -> anyhow::Result<()> {
+    run(registry_file, install_dir, package)
 }
 
 const DATA_ENDPOINT: &str = "/pkgdata";

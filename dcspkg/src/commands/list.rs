@@ -1,5 +1,5 @@
-use anyhow::{bail, Context, Result};
 use crate::Package;
+use anyhow::{bail, Context, Result};
 use reqwest::{blocking::get, IntoUrl, StatusCode};
 
 pub fn list<U: IntoUrl>(url: U) -> Result<Vec<Package>> {
