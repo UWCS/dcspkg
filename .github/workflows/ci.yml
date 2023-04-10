@@ -54,34 +54,6 @@ jobs:
           save-if: false
       - name: Run Cargo tests
         run: cargo test --verbose
-        
-        
-        runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-    - uses: dorny/paths-filter@v2
-      id: filter
-      with:
-        filters: |
-          backend:
-            - 'backend/**'
-          frontend:
-            - 'frontend/**'
-
-    # run only if 'backend' files were changed
-    - name: backend tests
-      if: steps.filter.outputs.backend == 'true'
-      run: ...
-
-    # run only if 'frontend' files were changed
-    - name: frontend tests
-      if: steps.filter.outputs.frontend == 'true'
-      run: ...
-
-    # run if 'backend' or 'frontend' files were changed
-    - name: e2e tests
-      if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
-      run: ...
       
       
   docker_publish:
