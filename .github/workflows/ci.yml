@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-  
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 env:
   CARGO_TERM_COLOR: always
@@ -59,7 +61,7 @@ jobs:
     needs:
       - lint
       - test
-    if: success() && github.ref_name == 'main'
+    if: success() && github.ref_name == 'main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v3
       # https://github.com/marketplace/actions/push-to-ghcr
@@ -75,7 +77,7 @@ jobs:
     needs:
       - lint
       - test
-    if: success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    if: success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
