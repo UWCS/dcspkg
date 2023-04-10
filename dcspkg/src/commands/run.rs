@@ -5,7 +5,11 @@ use std::path::{Path, PathBuf};
 
 /// Launches the specified package. This exits the current process
 /// and launches the package in its place.
-pub fn run_package(registry_file: &Path, install_dir: PathBuf, package: &String) -> anyhow::Result<()> {
+pub fn run_package(
+    registry_file: &Path,
+    install_dir: PathBuf,
+    package: &String,
+) -> anyhow::Result<()> {
     let package_data = list_installed_packages(registry_file)?
         .into_iter()
         .find(|pkg| pkg.pkgname == *package)

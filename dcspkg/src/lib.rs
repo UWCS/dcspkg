@@ -4,7 +4,7 @@ mod commands;
 pub mod config;
 pub mod util;
 
-pub use crate::commands::{list_all_packages, install_package, run_package};
+pub use crate::commands::{install_package, list_all_packages, run_package};
 
 /// Represents a package, and contains all the metadata assoicated with it.
 #[derive(Deserialize, Default, Serialize, Clone, Debug, PartialEq, Eq)]
