@@ -54,6 +54,18 @@ jobs:
           save-if: false
       - name: Run Cargo tests
         run: cargo test --verbose
+        
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      server_changed: ${{ steps.filter.outputs.server_changed }}
+    steps:
+    - uses: dorny/paths-filter@v2
+      with:
+        filters: |
+          server_changed:
+            - 'dcspkg_server/**'
+
 
   docker_publish:
     runs-on: ubuntu-latest
@@ -61,7 +73,8 @@ jobs:
     needs:
       - lint
       - test
-    if: success() && github.ref_name == 'main' && github.event_name == 'push'
+      - changes
+    if: success() && github.ref_name == 'main' && github.event_name == 'push' && ${{ needs.changes.outputs.frontend == 'true' }}
     steps:
       - uses: actions/checkout@v3
       # https://github.com/marketplace/actions/push-to-ghcr
@@ -77,7 +90,7 @@ jobs:
     needs:
       - lint
       - test
-    if: success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') && github.event_name == 'push'
+    if: success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
