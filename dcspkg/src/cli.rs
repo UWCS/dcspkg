@@ -1,6 +1,6 @@
 use crate::config::DcspkgConfig;
 use crate::util::*;
-use crate::{install_package, list_all_packages, list_installed_packages, run_package};
+use crate::{install_package, list_all_packages, run_package};
 use clap::{Parser, Subcommand};
 
 //clap stuff

@@ -1,4 +1,4 @@
-use crate::list_installed_packages;
+use crate::util::list_installed_packages;
 use anyhow::Context;
 use std::os::unix::process::CommandExt;
 use std::path::{Path, PathBuf};
