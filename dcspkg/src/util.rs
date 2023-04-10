@@ -33,7 +33,7 @@ pub fn print_package_list(list: &[Package], raw: bool) {
 }
 
 /// Helper to get the list of packages from the json file on disk
-pub fn get_registry(path: &Path) -> anyhow::Result<Vec<Package>> {
+pub fn list_installed_packages(path: &Path) -> anyhow::Result<Vec<Package>> {
     std::fs::File::open(path)
         .context("Could not open registry file")
         .and_then(|reader| {

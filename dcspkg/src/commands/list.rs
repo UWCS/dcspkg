@@ -2,7 +2,9 @@ use crate::Package;
 use anyhow::{bail, Context, Result};
 use reqwest::{blocking::get, IntoUrl, StatusCode};
 
-pub fn list<U: IntoUrl>(url: U) -> Result<Vec<Package>> {
+/// Returns a vector containing a list of packages that are available
+/// for installation from the dcspkg server.
+pub fn list_all_packages<U: IntoUrl>(url: U) -> Result<Vec<Package>> {
     //craft URL
     let url: reqwest::Url = url
         .into_url()

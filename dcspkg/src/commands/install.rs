@@ -13,7 +13,8 @@ use std::{
 };
 use tar::Archive;
 
-pub fn install<P: AsRef<Path>>(
+/// Installs the specified package locally.
+pub fn install_package<P: AsRef<Path>>(
     pkg_name: &str,                    //the packages pkgname
     server_url: impl reqwest::IntoUrl, //the url of the server, from config
     package_dir: P,                    //the local package install dir, from config

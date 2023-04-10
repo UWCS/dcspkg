@@ -49,11 +49,11 @@ impl Command {
 
             //install a package
             Install { package } => install_package(
+                package,
                 config.server.url,
                 config.registry.install_dir,
                 config.registry.bin_dir,
                 config.registry.registry_file,
-                package,
             ),
 
             //list what we have installed
