@@ -2,10 +2,8 @@ use anyhow::Context;
 use clap::Parser;
 use env_logger::Env;
 
+use dcspkg::*;
 mod cli;
-mod commands;
-mod config;
-mod util;
 
 fn main() -> anyhow::Result<()> {
     let cli = cli::Cli::parse();
@@ -23,10 +21,10 @@ fn main() -> anyhow::Result<()> {
     //load the application config
 
     //create the dcspkg directory
-    std::fs::create_dir_all(&*crate::config::DCSPKG_DIR)?;
+    std::fs::create_dir_all(&*config::DCSPKG_DIR)?;
 
     //load config
-    let config = crate::config::DcspkgConfig::get()?;
+    let config = config::DcspkgConfig::get()?;
 
     //create registry file if not exist
     if !config.registry.registry_file.is_file() {
@@ -36,7 +34,3 @@ fn main() -> anyhow::Result<()> {
 
     cli.command.run(config)
 }
-
-const DATA_ENDPOINT: &str = "/pkgdata";
-const FILE_ENDPOINT: &str = "/download";
-const LIST_ENDPOINT: &str = "/list";

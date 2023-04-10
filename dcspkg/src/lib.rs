@@ -1,5 +1,11 @@
 use serde::{Deserialize, Serialize};
 
+mod commands;
+pub mod config;
+pub mod util;
+
+pub use crate::commands::{list_all_packages, install_package, run_package};
+
 /// Represents a package, and contains all the metadata assoicated with it.
 #[derive(Deserialize, Default, Serialize, Clone, Debug, PartialEq, Eq)]
 pub struct Package {
@@ -21,3 +27,7 @@ pub struct Package {
     /// Does the package want to be added to path on the machine it was installed on?
     pub add_to_path: bool,
 }
+
+const DATA_ENDPOINT: &str = "/pkgdata";
+const FILE_ENDPOINT: &str = "/download";
+const LIST_ENDPOINT: &str = "/list";

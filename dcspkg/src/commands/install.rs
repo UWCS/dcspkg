@@ -1,6 +1,6 @@
+use crate::Package;
 use anyhow::{anyhow, bail, Context, Result};
 use bytes::Buf;
-use dcspkg::Package;
 use flate2::{read::GzDecoder, CrcReader};
 use reqwest::blocking::get;
 use reqwest::{StatusCode, Url};
@@ -13,7 +13,8 @@ use std::{
 };
 use tar::Archive;
 
-pub fn install<P: AsRef<Path>>(
+/// Installs the specified package locally.
+pub fn install_package<P: AsRef<Path>>(
     pkg_name: &str,                    //the packages pkgname
     server_url: impl reqwest::IntoUrl, //the url of the server, from config
     package_dir: P,                    //the local package install dir, from config
