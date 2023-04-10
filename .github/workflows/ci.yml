@@ -55,30 +55,54 @@ jobs:
       - name: Run Cargo tests
         run: cargo test --verbose
         
-  changes:
-    runs-on: ubuntu-latest
-    outputs:
-      server_changed: ${{ steps.filter.outputs.server_changed }}
+        
+        runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - uses: dorny/paths-filter@v2
+      id: filter
       with:
         filters: |
-          server_changed:
-            - 'dcspkg_server/**'
+          backend:
+            - 'backend/**'
+          frontend:
+            - 'frontend/**'
 
+    # run only if 'backend' files were changed
+    - name: backend tests
+      if: steps.filter.outputs.backend == 'true'
+      run: ...
 
+    # run only if 'frontend' files were changed
+    - name: frontend tests
+      if: steps.filter.outputs.frontend == 'true'
+      run: ...
+
+    # run if 'backend' or 'frontend' files were changed
+    - name: e2e tests
+      if: steps.filter.outputs.backend == 'true' || steps.filter.outputs.frontend == 'true'
+      run: ...
+      
+      
   docker_publish:
     runs-on: ubuntu-latest
     name: Publish built container
     needs:
       - lint
       - test
-      - changes
-    if: success() && github.ref_name == 'main' && github.event_name == 'push' && ${{ needs.changes.outputs.frontend == 'true' }}
+      
+    if: success() && github.ref_name == 'main' && github.event_name == 'push'
     steps:
       - uses: actions/checkout@v3
-      # https://github.com/marketplace/actions/push-to-ghcr
+      - uses: dorny/paths-filter@v2
+        id: has_server_changed
+        with:
+          filters: |
+            server:
+              - 'dcspkg_server/**'
+              
       - name: Build and publish a Docker image for dcspkg server
+        if: steps.has_server_changed.outputs.server == 'true'
         uses: macbre/push-to-ghcr@v12
         with:
           image_name: uwcs/dcspkg-server
