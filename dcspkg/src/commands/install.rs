@@ -158,7 +158,7 @@ fn run_download(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
 }
 
 async fn get_package_async(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
-    //make get request, get size of response body
+    //make get request
     let response = async_get(url.as_ref()).await.context("Request failed")?;
     log::info!("Got response from {url}");
     
