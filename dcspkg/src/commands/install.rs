@@ -116,7 +116,8 @@ fn download_install_file(
 
     log::info!("Downloading compressed package {pkg_name} from {url}...");
 
-    let response = run_async_download(pkg_name, &url)?;
+    //download the package
+    let response = run_download(pkg_name, &url)?;
     log::info!("Finished downloading package...");
     
     //the content of the response
@@ -142,15 +143,14 @@ fn download_install_file(
     // }
 
     log::info!("Unpacked archive");
-    println!("Unpacked into: {:?}", install_dir);
     log::debug!("Unpacked into {:?}", install_dir);
 
     Ok(())
 }
 
 
-fn run_async_download(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
-    //build a single-threaded runtime
+fn run_download(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
+    //build a single-threaded async runtime
     let rt = runtime::Builder::new_current_thread().enable_all().build().context("Failed to build runtime")?;
     //run async download using the runtime
     let buffer = rt.block_on(get_package_async(pkg_name, url))?;
@@ -193,7 +193,7 @@ async fn get_package_async(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
         bar.set_position(new);
     }
 
-    bar.finish_with_message("Download complete!");
+    bar.finish_with_message("Download complete, unpacking...");
     Ok(buffer)
 
 }
