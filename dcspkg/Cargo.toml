@@ -23,10 +23,13 @@ toml = "0.5.9"
 log = "0.4.17"
 serde_json = "1.0.85"
 tar = "0.4.38"
-reqwest = { version = "0.11.11", features = ["blocking", "json", "rustls"] }
+reqwest = { version = "0.11.11", features = ["blocking", "json", "rustls", "stream"] }
 tempfile = "3.3.0"
 flate2 = "1.0.24"
 bytes = "1.2.1"
+tokio = "1.32.0"
+indicatif = "0.17.6"
+futures-util = "0.3.28"
 
 [lib]
 name = "dcspkg"
