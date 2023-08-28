@@ -3,9 +3,9 @@ use anyhow::{anyhow, bail, Context, Result};
 use bytes::{Buf, BufMut, BytesMut};
 use flate2::{read::GzDecoder, CrcReader};
 use futures_util::StreamExt;
-use indicatif::{ProgressBar, ProgressStyle, ProgressState};
-use reqwest::get as async_get;
+use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 use reqwest::blocking::get;
+use reqwest::get as async_get;
 use reqwest::{StatusCode, Url};
 use std::cmp::min;
 use std::fmt::Write;
@@ -119,7 +119,7 @@ fn download_install_file(
     //download the package
     let response = run_download(pkg_name, &url)?;
     log::info!("Finished downloading package...");
-    
+
     //the content of the response
     let mut compressed = BytesMut::with_capacity(response.len());
     compressed.put(response.as_slice());
@@ -148,20 +148,22 @@ fn download_install_file(
     Ok(())
 }
 
-
-fn run_download(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
+fn run_download(pkg_name: &str, url: &Url) -> Result<Vec<u8>> {
     //build a single-threaded async runtime
-    let rt = runtime::Builder::new_current_thread().enable_all().build().context("Failed to build runtime")?;
+    let rt = runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .context("Failed to build runtime")?;
     //run async download using the runtime
     let buffer = rt.block_on(get_package_async(pkg_name, url))?;
     Ok(buffer)
 }
 
-async fn get_package_async(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
+async fn get_package_async(pkg_name: &str, url: &Url) -> Result<Vec<u8>> {
     //make get request
     let response = async_get(url.as_ref()).await.context("Request failed")?;
     log::info!("Got response from {url}");
-    
+
     if response.status() != StatusCode::OK {
         bail!(
             "Response was not okay (got code {} when requesting {})",
@@ -170,7 +172,9 @@ async fn get_package_async(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
         )
     }
 
-    let content_length = response.content_length().context("No content length provided")?;
+    let content_length = response
+        .content_length()
+        .context("No content length provided")?;
 
     //set up progress bar for download
     let bar = ProgressBar::new(content_length);
@@ -179,13 +183,13 @@ async fn get_package_async(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
         .with_key("eta", |state: &ProgressState, w: &mut dyn Write| write!(w, "{:.1}s", state.eta().as_secs_f64()).unwrap())
         .progress_chars("=>-"));
     bar.set_message(format!("Downloading {}", pkg_name));
-    
+
     //read response body into buffer
     let mut downloaded: u64 = 0;
     let mut buffer: Vec<u8> = vec![];
     let mut stream = response.bytes_stream();
-    
-    while let Some(item) = stream.next().await{
+
+    while let Some(item) = stream.next().await {
         let chunk = item.context("Error while downloading package")?;
         buffer.extend_from_slice(&chunk);
         let new = min(downloaded + (chunk.len() as u64), content_length);
@@ -195,7 +199,6 @@ async fn get_package_async(pkg_name: &str, url: &Url) -> Result<Vec<u8>>{
 
     bar.finish_with_message("Download complete, unpacking...");
     Ok(buffer)
-
 }
 
 fn run_install_script(path: &Path) -> Result<()> {
