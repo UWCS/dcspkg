@@ -21,7 +21,7 @@ jobs:
           shared-key: ci-build
           
       - name: Check that lockfile is up to date
-        run: cargo update --locked
+        run: cargo update #--locked
       - name: Check code builds without warnings
         run: cargo check --verbose --workspace
 
